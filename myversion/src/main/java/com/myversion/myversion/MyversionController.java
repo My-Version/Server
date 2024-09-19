@@ -23,9 +23,14 @@ public class MyversionController {
     public String hello() {
         return "hello";
     }
-    
+
     @GetMapping("/upload")
     public String getFlaskUrl() {
         return flaskProperties.getUrl();
     }
+
+    public void doNothiing(){
+        return ;
+    }
+
 }
