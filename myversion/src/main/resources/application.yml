@@ -2,10 +2,9 @@ spring:
   application:
     name: myversion
   datasource:
-    url: jdbc:mysql://localhost:3306/my_database?useSSL=false&serverTimezone=UTC
-    username: myversion
-    password: myversion
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:tcp://localhost/~/test
+    driver-class-name: org.h2.Driver
+    username: sa
   jpa:
     hibernate:
       ddl-auto: update
