@@ -1,5 +1,6 @@
-package com.myversion.myversion;
+package com.myversion.myversion.controller;
 
+import com.myversion.myversion.FlaskProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
