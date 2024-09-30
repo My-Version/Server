@@ -1,6 +1,7 @@
 package com.myversion.myversion;
 
 import com.myversion.myversion.repository.SongRepository;
+import com.myversion.myversion.repository.SpringDataJpaSongRepository;
 import com.myversion.myversion.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,10 +11,10 @@ import javax.sql.DataSource;
 
 @Configuration
 public class SpringConfig{
-    private final SongRepository songRepository;
+    private final SpringDataJpaSongRepository songRepository;
 
     @Autowired
-    public SpringConfig(SongRepository songRepository) {
+    public SpringConfig(SpringDataJpaSongRepository  songRepository) {
         this.songRepository = songRepository;
     }
 

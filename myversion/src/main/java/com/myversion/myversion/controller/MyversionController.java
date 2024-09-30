@@ -1,60 +1,49 @@
 package com.myversion.myversion.controller;
 
-import com.myversion.myversion.FlaskProperties;
+import com.myversion.myversion.domain.Song;
+import com.myversion.myversion.repository.JpaSongRepository;
+import com.myversion.myversion.repository.SpringDataJpaSongRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-
-@Controller
-@RequestMapping("/myversion")
+@RestController
 public class MyversionController {
-    
+    @PostMapping("/upload")
+    public String callPythonApi(@RequestBody String text) {
+        String apiUrl = "http://127.0.0.1:5000/upload";
+        
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.postForObject(apiUrl, "{\"text\": \"" + text + "\"}", String.class);
+
+        // result는 파이썬 API의 응답을 나타냅니다.
+        return result;
+    }
+
     @GetMapping("/compare")
     public String showDesignForm(){
         return "design";
     }
 
-    private FlaskProperties flaskProperties;
+    @Autowired
+    private SpringDataJpaSongRepository songRepository;
 
-    public FlaskProperties FlaskController(FlaskProperties flaskProperties) {
-        this.flaskProperties = flaskProperties;
-        return this.flaskProperties;
-    }
-    
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello";
+    @PostMapping
+    public ResponseEntity<Song> createSong(@RequestBody Song song) {
+        Song savedSong = songRepository.save(song);
+        return ResponseEntity.ok(savedSong);
     }
 
-    @GetMapping("hello-api")
-    @ResponseBody
-    public Hello helloApi(@RequestParam("name") String name){
-        Hello hello = new Hello();
-        hello.setName(name);
-        return hello;
-    }
-
-    
-    static class Hello{
-        private String name;
-
-        public String getName() {
-            return name;
+    @DeleteMapping
+    public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
+        if (songRepository.existsById(id)){
+            songRepository.deleteById(id);
+            return ResponseEntity.noContent().build();// 204 No Content 응답
+        }else{
+            return ResponseEntity.notFound().build();   // 404 Not Found 응답
         }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-    }
-    
-
-    @GetMapping("/upload")
-    public String getFlaskUrl() {
-        return flaskProperties.getUrl();
     }
 
 }

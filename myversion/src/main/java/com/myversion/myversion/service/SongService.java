@@ -2,6 +2,7 @@ package com.myversion.myversion.service;
 
 import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.repository.SongRepository;
+import com.myversion.myversion.repository.SpringDataJpaSongRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -9,9 +10,9 @@ import java.util.List;
 @Transactional
 public class SongService{
 
-    private final SongRepository songRepository;
+    private final SpringDataJpaSongRepository songRepository;
 
-    public SongService(SongRepository songRepository){
+    public SongService(SpringDataJpaSongRepository  songRepository){
         this.songRepository = songRepository;
     }
 
@@ -23,14 +24,15 @@ public class SongService{
     }
 
     private void validateDuplicateSong(Song song) {
-        songRepository.findByName(song.getName()).ifPresent(
+        // title이랑 artist가 둘다 겹치는 경우는 추가 안함.
+        songRepository.findByArtistAndTitle(song.getArtist(), song.getTitle()).ifPresent(
                 m->{
-                    throw new IllegalStateException("이미 존재하는 노래");
+                    throw new IllegalStateException("이미 존재하는 노래입니다. : 가수, 곡 제목 중복");
                 }
         );
     }
 
-    public List<Song> findSong(){
+    public List<Song> findAllSong(){
         return songRepository.findAll();
     }
 
