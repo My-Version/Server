@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SongRepository {
-    Song save(Song song);
+    //Song save(Song song);
     Optional<Song> findById(long id);
-    Optional<Song> findByName(String name);
     List<Song> findAll();
 }

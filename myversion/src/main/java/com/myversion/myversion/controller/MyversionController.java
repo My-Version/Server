@@ -1,19 +1,19 @@
 package com.myversion.myversion.controller;
 
-import com.myversion.myversion.FlaskProperties;
+import com.myversion.myversion.domain.Song;
+import com.myversion.myversion.repository.JpaSongRepository;
+import com.myversion.myversion.repository.SpringDataJpaSongRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-
-@Controller
+@RestController
 public class MyversionController {
-    
     @PostMapping("/upload")
     public String callPythonApi(@RequestBody String text) {
-        String apiUrl = "http://IP주소 바꿔서 넣어줘/upload";
+        String apiUrl = "http://127.0.0.1:5000/upload";
         
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.postForObject(apiUrl, "{\"text\": \"" + text + "\"}", String.class);
@@ -25,6 +25,25 @@ public class MyversionController {
     @GetMapping("/compare")
     public String showDesignForm(){
         return "design";
+    }
+
+    @Autowired
+    private SpringDataJpaSongRepository songRepository;
+
+    @PostMapping
+    public ResponseEntity<Song> createSong(@RequestBody Song song) {
+        Song savedSong = songRepository.save(song);
+        return ResponseEntity.ok(savedSong);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
+        if (songRepository.existsById(id)){
+            songRepository.deleteById(id);
+            return ResponseEntity.noContent().build();// 204 No Content 응답
+        }else{
+            return ResponseEntity.notFound().build();   // 404 Not Found 응답
+        }
     }
 
 }
