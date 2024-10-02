@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 @Repository
-public interface SpringDataJpaSongRepository extends JpaRepository<Song, Long>, SongRepository {
+public interface SpringDataJpaSongRepository extends JpaRepository<Song, Long>, Repository {
     // artist와 title이 둘 다 일치하는 노래를 찾는 커스텀 메서드
     @Query("SELECT s FROM Song s WHERE s.artist = :artist AND s.title = :title")
     Optional<Song> findByArtistAndTitle(@Param("artist") String artist, @Param("title") String title);

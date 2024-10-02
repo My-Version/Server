@@ -1,18 +1,18 @@
 package com.myversion.myversion.service;
 
 import com.myversion.myversion.domain.Song;
-import com.myversion.myversion.repository.SongRepository;
+import com.myversion.myversion.repository.Repository;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Transactional
-public class SongService{
+public class Service{
 
     private final SpringDataJpaSongRepository songRepository;
 
-    public SongService(SpringDataJpaSongRepository  songRepository){
+    public Service(SpringDataJpaSongRepository  songRepository){
         this.songRepository = songRepository;
     }
 
@@ -23,6 +23,10 @@ public class SongService{
         return song.getId();
     }
 
+    public String CompareSong(String song, String file){
+        return "heelo";
+    } 
+    
     private void validateDuplicateSong(Song song) {
         // title이랑 artist가 둘다 겹치는 경우는 추가 안함.
         songRepository.findByArtistAndTitle(song.getArtist(), song.getTitle()).ifPresent(

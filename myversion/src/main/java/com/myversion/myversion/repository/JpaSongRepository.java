@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-public class JpaSongRepository implements SongRepository{
+public class JpaSongRepository implements Repository{
 
     private final EntityManager em;
 

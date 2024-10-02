@@ -2,6 +2,7 @@ package com.myversion.myversion.controller;
 
 import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.repository.JpaSongRepository;
+import com.myversion.myversion.service.Service;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +12,16 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class MyversionController {
+
+    @Autowired
+    private SpringDataJpaSongRepository songRepository;
+
+    @Autowired
+    private Service service;
+
+
     @PostMapping("/upload")
-    public String callPythonApi(@RequestBody String text) {
+    public String VoiceForCover(@RequestBody String text) {
         String apiUrl = "http://127.0.0.1:5000/upload";
         
         RestTemplate restTemplate = new RestTemplate();
@@ -23,12 +32,33 @@ public class MyversionController {
     }
 
     @GetMapping("/compare")
-    public String showDesignForm(){
+    public String postScore(String song, String file){
+        service.CompareSong(song, file);
         return "design";
     }
 
-    @Autowired
-    private SpringDataJpaSongRepository songRepository;
+    @PostMapping("/register")
+    public boolean Register(String id, String pw){
+        if(true){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @PostMapping("/login")
+    public boolean Login(String id, String pw){
+        if(true){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @GetMapping("/downloadFile")
+    public String DownloadFile(String key, String file_name){
+        return "file";
+    }
 
     @PostMapping
     public ResponseEntity<Song> createSong(@RequestBody Song song) {
