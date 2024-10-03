@@ -34,7 +34,7 @@ public class Service {
 
     private static PythonInterpreter intPre;
     // 생성된 본인의 커버파일과 본인이 부른 연습본에 대한 유사도 분석(python파일 실행). 결과 파일 위치 반환
-    // (jaon파일 위치, png 파일 위치)
+    // ([2]: jaon파일 위치, [3] png 파일 위치)
     public List<String> CompareSong(String User_Practice_Dir, String Cover_Practice_Dir){
         List<String> result = new ArrayList<String>();
         try{
@@ -78,7 +78,7 @@ public class Service {
             result = Arrays.asList("no_file_path", "no_file_path");
         }
         return result;
-
+        // ([2]: jaon파일 위치, [3] png 파일 위치)
     }
 
     private void validateDuplicateSong(Song song) {
