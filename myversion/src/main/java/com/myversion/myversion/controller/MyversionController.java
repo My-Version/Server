@@ -3,14 +3,20 @@ package com.myversion.myversion.controller;
 import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.repository.JpaSongRepository;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
+import com.myversion.myversion.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @RestController
 public class MyversionController {
+    @Autowired
+    private Service songService;
+
     @PostMapping("/upload")
     public String callPythonApi(@RequestBody String text) {
         String apiUrl = "http://127.0.0.1:5000/upload";
@@ -23,8 +29,8 @@ public class MyversionController {
     }
 
     @GetMapping("/compare")
-    public String showDesignForm(){
-        return "design";
+    public List<String> compareSong(@RequestParam String userDir, @RequestParam String coverDir) {
+        return songService.CompareSong(userDir, coverDir);
     }
 
     @Autowired
@@ -45,5 +51,6 @@ public class MyversionController {
             return ResponseEntity.notFound().build();   // 404 Not Found 응답
         }
     }
+
 
 }
