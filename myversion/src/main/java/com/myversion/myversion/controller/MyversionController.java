@@ -4,20 +4,25 @@ import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.repository.JpaSongRepository;
 import com.myversion.myversion.service.Service;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
+import com.myversion.myversion.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @RestController
 public class MyversionController {
+
 
     @Autowired
     private SpringDataJpaSongRepository songRepository;
 
     @Autowired
     private Service service;
+
 
 
     @PostMapping("/upload")
@@ -32,10 +37,8 @@ public class MyversionController {
     }
 
     @GetMapping("/compare")
-    public String postScore(String song, String file){
-        service.CompareSong(song, file);
-        return "design";
-    }
+    public List<String> compareSong(@RequestParam String userDir, @RequestParam String coverDir) {
+        return songService.CompareSong(userDir, coverDir);
 
     @PostMapping("/register")
     public boolean Register(String id, String pw){
@@ -75,5 +78,6 @@ public class MyversionController {
             return ResponseEntity.notFound().build();   // 404 Not Found 응답
         }
     }
+
 
 }
