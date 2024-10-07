@@ -1,6 +1,9 @@
 package com.myversion.myversion.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,4 +29,22 @@ public class MyversionController {
         return "design";
     }
 
+    @GetMapping("/download/{fileName}")
+    public String downloadFile(@PathVariable String fileName){
+        return fileName;
+    }
+
+    // @GetMapping("/download/{fileName}")
+    // public ResponseEntity<byte[]> getImage(@PathVariable Long fileName){
+    //     FileInfoDto info = this.fileService.getImageInfoById(fileName);
+    //     Path imagePath = Paths.get(info.getFilePath());
+    //     String mimeType = info.getFileType();
+
+    //     byte[] imageBytes = this.fileService.getImageFile(imagePath);
+
+    //     return ResponseEntity.status(HttpStatus.OK)
+    //             .contentType(MediaType.valueOf(mimeType))  // 이미지 타입에 맞게 설정
+    //             .body(imageBytes);
+    // }
+    
 }

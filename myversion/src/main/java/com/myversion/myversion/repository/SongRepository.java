@@ -1,13 +1,13 @@
-package com.myversion.myversion.repository;
+// package com.myversion.myversion.repository;
 
-import com.myversion.myversion.domain.Song;
+// import com.myversion.myversion.domain.Song;
 
-import java.util.List;
-import java.util.Optional;
+// import java.util.List;
+// import java.util.Optional;
 
-public interface SongRepository {
-    Song save(Song song);
-    Optional<Song> findById(long id);
-    Optional<Song> findByName(String name);
-    List<Song> findAll();
-}
+// public interface SongRepository {
+//     Song save(Song song);
+//     Optional<Song> findById(long id);
+//     Optional<Song> findByName(String name);
+//     List<Song> findAll();
+// }
