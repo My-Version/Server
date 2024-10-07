@@ -1,15 +1,5 @@
 spring:
   application:
-    name: myversion
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/test
-    driver-class-name: org.h2.Driver
-    username: sa
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    
+    name: myversion  
 server:
     port: 8081
-
