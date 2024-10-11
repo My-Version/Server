@@ -1,5 +1,10 @@
 package com.myversion.myversion.controller;
 
+import java.io.IOException;
+
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+
 import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.repository.JpaSongRepository;
 import com.myversion.myversion.service.Service;
@@ -10,6 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.util.List;
 
