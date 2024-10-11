@@ -108,9 +108,9 @@ public class MyversionController {
     public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
         if (songRepository.existsById(id)){
             songRepository.deleteById(id);
-            return ResponseEntity.noContent().build();// 204 No Content 응답
+            return ResponseEntity.noContent().build();
         }else{
-            return ResponseEntity.notFound().build();   // 404 Not Found 응답
+            return ResponseEntity.notFound().build();
         }
     }
 
