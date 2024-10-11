@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import com.myversion.myversion.domain.Song;
 import com.myversion.myversion.service.Service;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
@@ -47,10 +50,10 @@ public class MyversionController {
         return result;
     }
 
-    @GetMapping("/compare")
-    public List<String> compareSong(@RequestParam String userDir, @RequestParam String coverDir) {
-        return Service.CompareSong(userDir, coverDir);
-    }
+    // @GetMapping("/compare")
+    // public List<String> compareSong(@RequestParam String userDir, @RequestParam String coverDir) {
+    //     return Service.CompareSong(userDir, coverDir);
+    // }
 
     @PostMapping("/register")
     public boolean Register(String id, String pw){
