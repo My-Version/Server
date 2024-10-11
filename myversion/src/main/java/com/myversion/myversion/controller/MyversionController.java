@@ -6,10 +6,8 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 
 import com.myversion.myversion.domain.Song;
-import com.myversion.myversion.repository.JpaSongRepository;
 import com.myversion.myversion.service.Service;
 import com.myversion.myversion.repository.SpringDataJpaSongRepository;
-import com.myversion.myversion.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,8 +36,6 @@ public class MyversionController {
     @Autowired
     private Service service;
 
-
-
     @PostMapping("/upload")
     public String VoiceForCover(@RequestBody String text) {
         String apiUrl = "http://127.0.0.1:5000/upload";
@@ -53,7 +49,8 @@ public class MyversionController {
 
     @GetMapping("/compare")
     public List<String> compareSong(@RequestParam String userDir, @RequestParam String coverDir) {
-        return songService.CompareSong(userDir, coverDir);
+        return Service.CompareSong(userDir, coverDir);
+    }
 
     @PostMapping("/register")
     public boolean Register(String id, String pw){
@@ -113,6 +110,4 @@ public class MyversionController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
 }
