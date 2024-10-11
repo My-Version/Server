@@ -25,6 +25,12 @@ import java.util.List;
 @RestController
 public class MyversionController {
 
+    private final S3Client s3Client;
+    private final String bucket = "ku-myversion-bucket";
+
+    public MyversionController(S3Client s3Client){
+        this.s3Client = s3Client;
+    }
 
     @Autowired
     private SpringDataJpaSongRepository songRepository;
@@ -77,7 +83,6 @@ public class MyversionController {
         ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
         InputStreamResource resource = new InputStreamResource(s3ObjectStream);
 
-        // 파일 확장자에 따른 MIME 타입 설정
         MediaType mediaType;
         if (fileName.endsWith(".mp3")) {
             mediaType = MediaType.parseMediaType("audio/mpeg");
