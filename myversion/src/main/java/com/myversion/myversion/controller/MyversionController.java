@@ -19,21 +19,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-
-import java.util.List;
 
 @RestController
 public class MyversionController {
 
     private final S3Client s3Client;
     private final String bucket = "ku-myversion-bucket";
-
+    
+    @Autowired
     public MyversionController(S3Client s3Client){
         this.s3Client = s3Client;
     }
@@ -109,13 +105,13 @@ public class MyversionController {
         return ResponseEntity.ok(savedSong);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
-        if (songRepository.existsById(id)){
-            songRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }else{
-            return ResponseEntity.notFound().build();
-        }
-    }
+    // @DeleteMapping
+    // public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
+    //     if (songRepository.existsById(id)){
+    //         songRepository.deleteById(id);
+    //         return ResponseEntity.noContent().build();
+    //     }else{
+    //         return ResponseEntity.notFound().build();
+    //     }
+    // }
 }

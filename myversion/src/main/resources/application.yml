@@ -2,13 +2,26 @@ spring:
   application:
     name: myversion
   datasource:
-    url: jdbc:h2:~/myversion
+    url: jdbc:h2:mem:myversiondb
     driver-class-name: org.h2.Driver
-    username: sa
+    username: myversion
+    password: myversion
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: ku-myversion-bucket
     
 server:
     port: 8081
