@@ -58,9 +58,30 @@ public class MyversionController {
         }
     }
 
-    @GetMapping("/downloadFile")
-    public String DownloadFile(String key, String file_name){
-        return "file";
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .build();
+
+        ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
+        InputStreamResource resource = new InputStreamResource(s3ObjectStream);
+
+        // 파일 확장자에 따른 MIME 타입 설정
+        MediaType mediaType;
+        if (fileName.endsWith(".mp3")) {
+            mediaType = MediaType.parseMediaType("audio/mpeg");
+        } else if (fileName.endsWith(".wav")) {
+            mediaType = MediaType.parseMediaType("audio/wav");
+        } else {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
+        }
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
     }
 
     @PostMapping
