@@ -24,8 +24,8 @@ public class Song {
         return title;
     }
 
-    public void setTitle(String tiele) {
-        this.title = tiele;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
 
