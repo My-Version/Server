@@ -1,6 +1,13 @@
 spring:
   application:
     name: myversion
+  servlet:
+    multipart:
+      file-size-threshold: 1MB
+      location: C:/Temp
+      max-file-size: 10MB
+      max-request-size: 100MB
+      enabled: true
   datasource:
     url: jdbc:h2:mem:myversiondb
     driver-class-name: org.h2.Driver
@@ -24,4 +31,4 @@ cloud:
       bucket: ku-myversion-bucket
     
 server:
-    port: 8081
+    port: 9091

@@ -2,7 +2,7 @@ package com.myversion.myversion.service;
 
 import com.myversion.myversion.domain.Song;
 
-import com.myversion.myversion.repository.SpringDataJpaSongRepository;
+import com.myversion.myversion.repository.SpringDataJpaRepository;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
@@ -20,16 +20,16 @@ import java.util.List;
 @Transactional
 public class Service {
 
-    private final SpringDataJpaSongRepository songRepository;
+    private final SpringDataJpaRepository songRepository;
 
-    public Service(SpringDataJpaSongRepository  songRepository){
+    public Service(SpringDataJpaRepository  songRepository){
         this.songRepository = songRepository;
     }
 
     //노래 등록
     public Long join(Song song){
         validateDuplicateSong(song);    // 중복곡은 배제
-        songRepository.save(song);
+        //songRepository.save(song);
         return song.getId();
     }
 
@@ -91,8 +91,8 @@ public class Service {
         );
     }
 
-    public List<Song> findAllSong(){
-        return songRepository.findAll();
-    }
+    //public List<Song> findAllSong(){
+        //return songRepository.findAll();
+    //}
 
 }
