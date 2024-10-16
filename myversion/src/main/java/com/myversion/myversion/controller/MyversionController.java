@@ -62,8 +62,8 @@ public class MyversionController {
         return response.getBody();
     }
 
-    @GetMapping("/compareScore")
-    public ResponseEntity<?> compareScore(@RequestParam String userDir, @RequestParam String coverDir) throws IOException {
+    @PostMapping("/compareScore")
+    public ResponseEntity<?> compareScore(@RequestParam("file") MultipartFile file, @RequestParam String coverDir) throws IOException {
         // String json_location = "classpath:sim_result_20241003_210352.json";
         // Resource resource = resourceLoader.getResource(json_location);
 
@@ -79,9 +79,9 @@ public class MyversionController {
     }
 
     @GetMapping("/compareImage")
-    public ResponseEntity<?> compareImage(@RequestParam String userDir, @RequestParam String coverDir) throws IOException {
+    public ResponseEntity<?> compareImage(@RequestParam String imageFile) throws IOException {
         
-        byte[] imageBytes = Files.readAllBytes(Paths.get("classpath:sim_wave_20241003_210352.png"));
+        byte[] imageBytes = Files.readAllBytes(Paths.get("sim_wave_20241003_210352.png"));
         InputStreamResource imageResource = new InputStreamResource(new ByteArrayInputStream(imageBytes));
 
         HttpHeaders imageHeaders = new HttpHeaders();
