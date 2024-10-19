@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 @RestController
 public class MyversionController {
@@ -63,7 +64,7 @@ public class MyversionController {
     }
 
     @PostMapping("/compareScore")
-    public ResponseEntity<?> compareScore(@RequestParam("file") MultipartFile file, @RequestParam String coverDir) throws IOException {
+    public ResponseEntity<?> compareScore(@RequestParam("file") MultipartFile file, @RequestBody String coverDir) throws IOException {
         // String json_location = "classpath:sim_result_20241003_210352.json";
         // Resource resource = resourceLoader.getResource(json_location);
 
@@ -93,8 +94,10 @@ public class MyversionController {
     }
 
     @PostMapping("/register")   
-    public ResponseEntity<Boolean> Register(@RequestParam String id, @RequestParam String pw){
-        System.out.println("ID: " + id + ", PW: " + pw);
+    public ResponseEntity<Boolean> Register(@RequestBody Map<String, String> requestData){
+        String id = requestData.get("id");
+        String pw = requestData.get("pw");
+        
         if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
             return ResponseEntity.ok(true); 
         } else {
@@ -103,12 +106,14 @@ public class MyversionController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Boolean> Login(@RequestParam String id, @RequestParam String pw){
-        System.out.println("ID: " + id + ", PW: " + pw);
+    public ResponseEntity<Boolean> Login(@RequestBody Map<String, String> requestData){
+        String id = requestData.get("id");
+        String pw = requestData.get("pw");
+        
         if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
             return ResponseEntity.ok(true); 
         } else {
-            return ResponseEntity.ok(false); 
+            return ResponseEntity.ok(false);
         }
     }
 
