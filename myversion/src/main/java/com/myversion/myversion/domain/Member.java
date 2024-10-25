@@ -8,11 +8,11 @@ import jakarta.persistence.Id;
 @Entity
 public class Member {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String password;
     private String name;
 
-    public int getId(){
+    public Long getId(){
         return this.id;
     }
 
