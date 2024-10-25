@@ -27,7 +27,7 @@ public class SpringConfig{
     @Bean
     public S3Client s3Client(){
         return S3Client.builder()
-                .region(Region.of("my_region")) // AWS 리전 설정
+                .region(Region.of("ap northeast 2")) // AWS 리전 설정
                 .build();
     }
 }
