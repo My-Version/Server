@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -29,7 +31,6 @@ import software.amazon.awssdk.services.s3.model.*;
 public class MyversionController {
 
     private final S3Client s3Client;
-    private final String bucket = "my-version-song-list";
     
     @Autowired
     public MyversionController(S3Client s3Client){
@@ -115,9 +116,11 @@ public class MyversionController {
     }
 
     @GetMapping("/listDownload")
-    public List<Map<String, String>> listDownload(@RequestParam String Bucket) {
+    public List<Map<String, String>> listDownload(@RequestParam String bucketName) {
+        String bucket = "my-version-"+bucketName+"-list";
+    
         ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
-                .bucket(Bucket)
+                .bucket(bucket)
                 .build();
 
         ListObjectsV2Response listObjResponse = s3Client.listObjectsV2(listObjectsReqManual);
@@ -129,31 +132,34 @@ public class MyversionController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Boolean> Login(@RequestBody Map<String, String> requestData){
+    public ResponseEntity<String> Login(@RequestBody Map<String, String> requestData){
         String id = requestData.get("id");
         String pw = requestData.get("pw");
         
         if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
-            return ResponseEntity.ok(true); 
+            return ResponseEntity.ok("true"); 
         } else {
-            return ResponseEntity.ok(false);
+            return ResponseEntity.ok("false");
         }
     }
 
-    @GetMapping("/download/{fileName}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, @RequestParam String bucketName) throws IOException {
+        String bucket = "my-version-"+bucketName+"-list";
+        String decodedFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.toString());
+
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
-                .key(fileName)
+                .key(decodedFileName)
                 .build();
 
         ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
         InputStreamResource resource = new InputStreamResource(s3ObjectStream);
 
         MediaType mediaType;
-        if (fileName.endsWith(".mp3")) {
+        if (decodedFileName.endsWith(".mp3")) {
             mediaType = MediaType.parseMediaType("audio/mpeg");
-        } else if (fileName.endsWith(".wav")) {
+        } else if (decodedFileName.endsWith(".wav")) {
             mediaType = MediaType.parseMediaType("audio/wav");
         } else {
             mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
@@ -161,7 +167,7 @@ public class MyversionController {
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedFileName + "\"")
                 .body(resource);
     }
 
