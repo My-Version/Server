@@ -1,35 +1,35 @@
 package com.myversion.myversion.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-// import com.myversion.myversion.repository.SpringDataJpaRepository;
-//import com.myversion.myversion.service.Service;
-
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
+import software.amazon.awssdk.services.s3.model.*;
 
 @RestController
 public class MyversionController {
 
     private final S3Client s3Client;
-    private final String bucket = "ku-myversion-bucket";
+    private final String bucket = "my-version-song-list";
     
     @Autowired
     public MyversionController(S3Client s3Client){
@@ -56,27 +56,36 @@ public class MyversionController {
         
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", file.getResource());
-
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
+        if (body.isEmpty()){
+            return "failure";
+        }else{
+            return "true";
+        }
+        //HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        //ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
         
-        return response.getBody();
+        //return response.getBody();
     }
 
-    @PostMapping("/compareScore")
-    public ResponseEntity<?> compareScore(@RequestParam("file") MultipartFile file, @RequestBody String coverDir) throws IOException {
-        // String json_location = "classpath:sim_result_20241003_210352.json";
-        // Resource resource = resourceLoader.getResource(json_location);
+    // @PostMapping("/compareUpload")
+    // public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    //     String json_location = "classpath:sim_result_20241003_210352.json";
+    //     Resource resource = resourceLoader.getResource(json_location);
 
-        // String jsonData = new String(Files.readAllBytes(resource.getFile().toPath()));
+    //     String jsonData = new String(Files.readAllBytes(resource.getFile().toPath()));
+    //     return ResponseEntity.ok();
+    // }
+
+    @GetMapping("/compareScore")
+    public ResponseEntity<?> compareScore(@RequestParam String coverDir) throws IOException {
         String jsonData = "{\"userDir\": \"Hello, World!\"}";
 
         HttpHeaders jsonHeaders = new HttpHeaders();
         jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         return ResponseEntity.ok()
-                .headers(jsonHeaders)
-                .body(jsonData);
+            .headers(jsonHeaders)
+            .body(jsonData);
     }
 
     @GetMapping("/compareImage")
@@ -103,6 +112,20 @@ public class MyversionController {
         } else {
             return ResponseEntity.ok(false); 
         }
+    }
+
+    @GetMapping("/listDownload")
+    public List<Map<String, String>> listDownload(@RequestParam String Bucket) {
+        ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
+                .bucket(Bucket)
+                .build();
+
+        ListObjectsV2Response listObjResponse = s3Client.listObjectsV2(listObjectsReqManual);
+
+        return listObjResponse.contents().stream()
+                .map(S3Object::key)
+                .map(this::extractSongInfo)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/login")
@@ -140,6 +163,18 @@ public class MyversionController {
                 .contentType(mediaType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
+    }
+
+    private Map<String, String> extractSongInfo(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String nameAndArtist = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+        
+        String[] parts = nameAndArtist.split("-");
+        if (parts.length == 2) {
+            return Map.of("music", parts[0].trim(), "singer", parts[1].trim());
+        } else {
+            return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
+        }
     }
 
     //@PostMapping
