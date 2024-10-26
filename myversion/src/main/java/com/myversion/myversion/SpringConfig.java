@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class SpringConfig{
-    
+
     // @Autowired
     // public SpringConfig(Repository Repository) {
     //     this.Repository = Repository;
@@ -22,6 +22,7 @@ public class SpringConfig{
     //     return new Service(SpringDataJpaRepository);
     // }
 
+    //S3Client 빈 등록
     @Bean
     public S3Client s3Client() {
         Dotenv dotenv = Dotenv.load();

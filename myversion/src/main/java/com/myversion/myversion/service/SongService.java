@@ -2,27 +2,22 @@ package com.myversion.myversion.service;
 
 import com.myversion.myversion.domain.Song;
 
-import com.myversion.myversion.repository.SpringDataJpaRepository;
-import org.python.core.PyFunction;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PyString;
+import com.myversion.myversion.repository.SongSpringDataJpaRepository;
 import org.python.util.PythonInterpreter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Transactional
-public class Service {
+public class SongService {
 
-    private final SpringDataJpaRepository songRepository;
+    private final SongSpringDataJpaRepository songRepository;
 
-    public Service(SpringDataJpaRepository  songRepository){
+    public SongService(SongSpringDataJpaRepository songRepository){
         this.songRepository = songRepository;
     }
 
