@@ -1,6 +1,7 @@
 package com.myversion.myversion.controller;
 
 import com.myversion.myversion.domain.Member;
+import com.myversion.myversion.dto.member.MemberRequestDTO;
 import com.myversion.myversion.service.MemberService;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +23,15 @@ public class MemberController {
     }
 
     // Create or Update
-    @PostMapping
-    public Member createMember(@RequestBody Member member) {
+    @PostMapping("/register")
+    public Member createMember(@RequestBody MemberRequestDTO memberRequestDTO) {
+        Long id = memberRequestDTO.getId();
+        String name = memberRequestDTO.getName();
+        String pw = memberRequestDTO.getPw();
+
+        Member member = new Member(id, pw, name);
+
+
         return memberService.saveMember(member);
     }
 
