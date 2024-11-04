@@ -12,6 +12,15 @@ public class Member {
     private String password;
     private String name;
 
+    protected Member() {
+    }
+
+    public Member(Long id, String password, String name) {
+        this.id = id;
+        this.password = password;
+        this.name = name;
+    }
+
     public Long getId(){
         return this.id;
     }
