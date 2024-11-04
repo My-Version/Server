@@ -2,6 +2,8 @@ package com.myversion.myversion.repository;
 
 import com.myversion.myversion.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface MemberSpringDataJpaRepository extends JpaRepository<Member, Long>{
+@Repository
+public interface MemberSpringDataJpaRepository extends JpaRepository<Member, Long>, MemberRepository{
 }
