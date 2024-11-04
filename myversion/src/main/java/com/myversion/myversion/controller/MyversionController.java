@@ -28,13 +28,13 @@ import java.util.Map;
 @RestController
 public class MyversionController {
 
-    private final S3Client s3Client;
+//    private final S3Client s3Client;
     private final String bucket = "ku-myversion-bucket";
     
-    @Autowired
-    public MyversionController(S3Client s3Client){
-        this.s3Client = s3Client;
-    }
+//    @Autowired
+//    public MyversionController(S3Client s3Client){
+//        this.s3Client = s3Client;
+//    }
 
 
     @Autowired
@@ -117,30 +117,30 @@ public class MyversionController {
         }
     }
 
-    @GetMapping("/download/{fileName}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(fileName)
-                .build();
-
-        ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
-        InputStreamResource resource = new InputStreamResource(s3ObjectStream);
-
-        MediaType mediaType;
-        if (fileName.endsWith(".mp3")) {
-            mediaType = MediaType.parseMediaType("audio/mpeg");
-        } else if (fileName.endsWith(".wav")) {
-            mediaType = MediaType.parseMediaType("audio/wav");
-        } else {
-            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .body(resource);
-    }
+//    @GetMapping("/download/{fileName}")
+//    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
+//        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+//                .bucket(bucket)
+//                .key(fileName)
+//                .build();
+//
+//        ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
+//        InputStreamResource resource = new InputStreamResource(s3ObjectStream);
+//
+//        MediaType mediaType;
+//        if (fileName.endsWith(".mp3")) {
+//            mediaType = MediaType.parseMediaType("audio/mpeg");
+//        } else if (fileName.endsWith(".wav")) {
+//            mediaType = MediaType.parseMediaType("audio/wav");
+//        } else {
+//            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
+//        }
+//
+//        return ResponseEntity.ok()
+//                .contentType(mediaType)
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+//                .body(resource);
+//    }
 
     //@PostMapping
     //public ResponseEntity<Song> createSong(@RequestBody Song song) {
