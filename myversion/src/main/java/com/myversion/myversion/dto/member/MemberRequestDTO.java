@@ -1,24 +1,24 @@
 package com.myversion.myversion.dto.member;
 
 public class MemberRequestDTO {
-    private Long id;
-    private String pw;
+    private String id;
+    private String password;
     private String name;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getPw() {
-        return pw;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPw(String pw) {
-        this.pw = pw;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getName() {
