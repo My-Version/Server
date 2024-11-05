@@ -21,20 +21,23 @@ public class MemberService {
 
     // Create or Update
     public Member saveMember(Member member) {
+        if (memberRepository.findById(member.getId()).isPresent()){
+            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+        }
         return memberRepository.save(member);
     }
 
-    public Member login(Long id, String password) {
+    public Member login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
         if (member.isPresent() && Objects.equals(member.get().getPassWord(), password)) {
             return member.get();
         }
-        return null;
+        throw new RuntimeException("ID 또는 비밀번호가 잘못되었습니다");
     }
 
 
     // Find by ID
-    public Optional<Member> findMemberById(Long id) {
+    public Optional<Member> findMemberById(String id) {
         return memberRepository.findById(id);
     }
 
@@ -44,7 +47,7 @@ public class MemberService {
     }
 
     // Delete by ID
-    public void deleteMemberById(Long id) {
+    public void deleteMemberById(String id) {
         memberRepository.deleteById(id);
     }
 
