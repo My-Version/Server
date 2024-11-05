@@ -22,17 +22,17 @@ public class MemberService {
     // Create or Update
     public Member saveMember(Member member) {
         if (memberRepository.findById(member.getId()).isPresent()){
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+            return null;
         }
         return memberRepository.save(member);
     }
 
-    public Member login(String id, String password) {
+    public String login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
         if (member.isPresent() && Objects.equals(member.get().getPassWord(), password)) {
-            return member.get();
+            return member.get().getId();
         }
-        throw new RuntimeException("ID 또는 비밀번호가 잘못되었습니다");
+        return null;
     }
 
 
