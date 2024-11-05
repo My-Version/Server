@@ -40,10 +40,10 @@ public class MemberController {
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
-            Member member = memberService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
-            return ResponseEntity.ok(member); // 로그인 MEMBER 객체 반환
+            String memberId = memberService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
+            return ResponseEntity.ok(memberId);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
         }
     }
 
