@@ -1,35 +1,39 @@
 package com.myversion.myversion.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-// import com.myversion.myversion.repository.SpringDataJpaRepository;
-//import com.myversion.myversion.service.Service;
-
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
+import software.amazon.awssdk.services.s3.model.*;
 
 @RestController
 public class MyversionController {
 
-//    private final S3Client s3Client;
+
     private final String bucket = "ku-myversion-bucket";
+    private final S3Client s3Client;
+
     
 //    @Autowired
 //    public MyversionController(S3Client s3Client){
@@ -56,27 +60,36 @@ public class MyversionController {
         
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", file.getResource());
-
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
+        if (body.isEmpty()){
+            return "failure";
+        }else{
+            return "true";
+        }
+        //HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        //ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
         
-        return response.getBody();
+        //return response.getBody();
     }
 
-    @PostMapping("/compareScore")
-    public ResponseEntity<?> compareScore(@RequestParam("file") MultipartFile file, @RequestBody String coverDir) throws IOException {
-        // String json_location = "classpath:sim_result_20241003_210352.json";
-        // Resource resource = resourceLoader.getResource(json_location);
+    // @PostMapping("/compareUpload")
+    // public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    //     String json_location = "classpath:sim_result_20241003_210352.json";
+    //     Resource resource = resourceLoader.getResource(json_location);
 
-        // String jsonData = new String(Files.readAllBytes(resource.getFile().toPath()));
+    //     String jsonData = new String(Files.readAllBytes(resource.getFile().toPath()));
+    //     return ResponseEntity.ok();
+    // }
+
+    @GetMapping("/compareScore")
+    public ResponseEntity<?> compareScore(@RequestParam String coverDir) throws IOException {
         String jsonData = "{\"userDir\": \"Hello, World!\"}";
 
         HttpHeaders jsonHeaders = new HttpHeaders();
         jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         return ResponseEntity.ok()
-                .headers(jsonHeaders)
-                .body(jsonData);
+            .headers(jsonHeaders)
+            .body(jsonData);
     }
 
     @GetMapping("/compareImage")
@@ -105,42 +118,74 @@ public class MyversionController {
         }
     }
 
+    @GetMapping("/listDownload")
+    public List<Map<String, String>> listDownload(@RequestParam String bucketName) {
+        String bucket = "my-version-"+bucketName+"-list";
+    
+        ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
+                .bucket(bucket)
+                .build();
+
+        ListObjectsV2Response listObjResponse = s3Client.listObjectsV2(listObjectsReqManual);
+
+        return listObjResponse.contents().stream()
+                .map(S3Object::key)
+                .map(this::extractSongInfo)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<Boolean> Login(@RequestBody Map<String, String> requestData){
+    public ResponseEntity<String> Login(@RequestBody Map<String, String> requestData){
         String id = requestData.get("id");
         String pw = requestData.get("pw");
         
         if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
-            return ResponseEntity.ok(true); 
+            return ResponseEntity.ok("true"); 
         } else {
-            return ResponseEntity.ok(false);
+            return ResponseEntity.ok("false");
         }
     }
 
-//    @GetMapping("/download/{fileName}")
-//    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
-//        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-//                .bucket(bucket)
-//                .key(fileName)
-//                .build();
-//
-//        ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
-//        InputStreamResource resource = new InputStreamResource(s3ObjectStream);
-//
-//        MediaType mediaType;
-//        if (fileName.endsWith(".mp3")) {
-//            mediaType = MediaType.parseMediaType("audio/mpeg");
-//        } else if (fileName.endsWith(".wav")) {
-//            mediaType = MediaType.parseMediaType("audio/wav");
-//        } else {
-//            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
-//        }
-//
-//        return ResponseEntity.ok()
-//                .contentType(mediaType)
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-//                .body(resource);
-//    }
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, @RequestParam String bucketName) throws IOException {
+        String bucket = "my-version-"+bucketName+"-list";
+        String decodedFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.toString());
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(decodedFileName)
+                .build();
+
+        ResponseInputStream<?> s3ObjectStream = s3Client.getObject(getObjectRequest);
+        InputStreamResource resource = new InputStreamResource(s3ObjectStream);
+
+        MediaType mediaType;
+        if (decodedFileName.endsWith(".mp3")) {
+            mediaType = MediaType.parseMediaType("audio/mpeg");
+        } else if (decodedFileName.endsWith(".wav")) {
+            mediaType = MediaType.parseMediaType("audio/wav");
+        } else {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
+        }
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedFileName + "\"")
+                .body(resource);
+    }
+
+
+    private Map<String, String> extractSongInfo(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String nameAndArtist = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+        
+        String[] parts = nameAndArtist.split("-");
+        if (parts.length == 2) {
+            return Map.of("music", parts[0].trim(), "singer", parts[1].trim());
+        } else {
+            return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
+        }
+    }
 
     //@PostMapping
     //public ResponseEntity<Song> createSong(@RequestBody Song song) {
