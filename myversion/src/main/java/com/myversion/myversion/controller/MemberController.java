@@ -1,10 +1,13 @@
 package com.myversion.myversion.controller;
 
 import com.myversion.myversion.domain.Member;
+import com.myversion.myversion.dto.member.LoginRequestDTO;
 import com.myversion.myversion.dto.member.MemberRequestDTO;
 import com.myversion.myversion.service.MemberService;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,19 +28,28 @@ public class MemberController {
     // Create or Update
     @PostMapping("/register")
     public Member createMember(@RequestBody MemberRequestDTO memberRequestDTO) {
-        Long id = memberRequestDTO.getId();
+        String id = memberRequestDTO.getId();
         String name = memberRequestDTO.getName();
-        String pw = memberRequestDTO.getPw();
+        String pw = memberRequestDTO.getPassword();
 
         Member member = new Member(id, pw, name);
-
 
         return memberService.saveMember(member);
     }
 
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        try {
+            Member member = memberService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
+            return ResponseEntity.ok(member); // 로그인 MEMBER 객체 반환
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
     // Read by ID
     @GetMapping("/{id}")
-    public Optional<Member> getMember(@PathVariable Long id) {
+    public Optional<Member> getMember(@PathVariable String id) {
         return memberService.findMemberById(id);
     }
 
@@ -49,7 +61,7 @@ public class MemberController {
 
     // Delete by ID
     @DeleteMapping("/{id}")
-    public void deleteMember(@PathVariable Long id) {
+    public void deleteMember(@PathVariable String id) {
         memberService.deleteMemberById(id);
     }
 }
