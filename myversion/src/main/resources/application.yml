@@ -9,10 +9,10 @@ spring:
       max-request-size: 100MB
       enabled: true
   datasource:
-    url: jdbc:h2:mem:myversiondb
+    url: jdbc:h2:tcp://localhost/~/myversiondb
     driver-class-name: org.h2.Driver
-    username: myversion
-    password: myversion
+    username: mv
+    password: mv
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -29,6 +29,6 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: ku-myversion-bucket
-    
+
 server:
     port: 9091

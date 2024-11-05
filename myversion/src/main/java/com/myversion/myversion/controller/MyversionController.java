@@ -30,12 +30,15 @@ import software.amazon.awssdk.services.s3.model.*;
 @RestController
 public class MyversionController {
 
+
+    private final String bucket = "ku-myversion-bucket";
     private final S3Client s3Client;
+
     
-    @Autowired
-    public MyversionController(S3Client s3Client){
-        this.s3Client = s3Client;
-    }
+//    @Autowired
+//    public MyversionController(S3Client s3Client){
+//        this.s3Client = s3Client;
+//    }
 
 
     @Autowired
@@ -170,6 +173,7 @@ public class MyversionController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedFileName + "\"")
                 .body(resource);
     }
+
 
     private Map<String, String> extractSongInfo(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
