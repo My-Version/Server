@@ -40,17 +40,39 @@ public class CoverController {
     private final CoverSongService coverSongService;
 
     @Autowired
+    private ResourceLoader resourceLoader;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String flaskUrl = "http://192.168.123.101:5000/upload";
+
+
+    @Autowired
     public CoverController(S3Client s3Client, CoverSongService coverSongService){
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
     }
 
 
-    @Autowired
-    private ResourceLoader resourceLoader;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskUrl = "http://192.168.123.101:5000/upload";
+
+
+    @PostMapping("/save")
+    public CoverSong saveCoverSong(@RequestBody CoverSong coverSong) {
+        return coverSongService.save(coverSong);
+    }
+    // findAllByUserId
+
+    @GetMapping("/{userId}")
+    public List<CoverSong> findAllByUserId(@PathVariable String userId) {
+        return coverSongService.findAllByUserId(userId);
+    }
+
+    @PatchMapping("/{id}")
+    public CoverSong updateCoverSong(@PathVariable Long id, @RequestBody CoverSong updatedFields) {
+        return coverSongService.updateCoverSong(id, updatedFields);
+    }
+
+
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file) throws IOException {
