@@ -1,7 +1,19 @@
 package com.myversion.myversion.controller;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CompareController {
@@ -34,30 +46,12 @@ public class CompareController {
         HttpHeaders imageHeaders = new HttpHeaders();
         imageHeaders.setContentType(MediaType.IMAGE_PNG);
 
-        return ResoponseEntity.ok()
+        return ResponseEntity.ok()
             .headers(imageHeaders)
             .body(imageResource);
     }
 
-    public CompareController(CoverSongService coverSongService) {
-        this.coverSongService = coverSongService;
+    public CompareController() {
     }
-
-    @PostMapping("/save")
-    public CoverSong saveCoverSong(@RequestBody CoverSong coverSong) {
-        return coverSongService.save(coverSong);
-    }
-    // findAllByUserId
-    @GetMapping("/{userId}")
-    public List<CoverSong> findAllByUserId(@PathVariable String userId) {
-        return coverSongService.findAllByUserId(userId);
-    }
-
-    @PatchMapping("/{id}")
-    public CoverSong updateCoverSong(@PathVariable Long id, @RequestBody CoverSong updatedFields) {
-        return coverSongService.updateCoverSong(id, updatedFields);
-    }
-
-
 
 }
