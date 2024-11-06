@@ -1,13 +1,11 @@
 package com.myversion.myversion.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +32,8 @@ import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
 
 @RestController
-public class CoverController {
+@RequestMapping("/api/cover")
+public class CoverSongController {
     
     private final S3Client s3Client;
     private final CoverSongService coverSongService;
@@ -47,20 +46,21 @@ public class CoverController {
 
 
     @Autowired
-    public CoverController(S3Client s3Client, CoverSongService coverSongService){
+    public CoverSongController(S3Client s3Client, CoverSongService coverSongService){
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
     }
 
-
-
-
+    @GetMapping("/s3location/{coverSongId}")
+    public Optional<String> getS3Location(@PathVariable Long coverSongId){
+        return coverSongService.findS3FileLocationById(coverSongId);
+    }
 
     @PostMapping("/save")
     public CoverSong saveCoverSong(@RequestBody CoverSong coverSong) {
         return coverSongService.save(coverSong);
     }
-    // findAllByUserId
+
 
     @GetMapping("/{userId}")
     public List<CoverSong> findAllByUserId(@PathVariable String userId) {
@@ -71,8 +71,6 @@ public class CoverController {
     public CoverSong updateCoverSong(@PathVariable Long id, @RequestBody CoverSong updatedFields) {
         return coverSongService.updateCoverSong(id, updatedFields);
     }
-
-
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file) throws IOException {
