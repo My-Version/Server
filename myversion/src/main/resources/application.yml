@@ -28,7 +28,10 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
-      bucket: ku-myversion-bucket
+      bucket: my-version-user-record-list
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
 
 server:
     port: 9091
