@@ -2,13 +2,13 @@ package com.myversion.myversion.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -19,36 +19,34 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 @RestController
-public class MyversionController {
-
-
-    private final String bucket = "ku-myversion-bucket";
-    private final S3Client s3Client;
-
+public class CoverController {
     
-//    @Autowired
-//    public MyversionController(S3Client s3Client){
-//        this.s3Client = s3Client;
-//    }
+    private final S3Client s3Client;
+    
+   @Autowired
+   public CoverController(S3Client s3Client){
+       this.s3Client = s3Client;
+   }
 
 
     @Autowired
     private ResourceLoader resourceLoader;
-
-    //@Autowired
-    //private SpringDataJpaRepository Repository;
-
-    // @Autowired
-    // private Service service;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String flaskUrl = "http://192.168.123.101:5000/upload";
@@ -106,18 +104,6 @@ public class MyversionController {
                 .body(imageResource);
     }
 
-    @PostMapping("/register")   
-    public ResponseEntity<Boolean> Register(@RequestBody Map<String, String> requestData){
-        String id = requestData.get("id");
-        String pw = requestData.get("pw");
-        
-        if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
-            return ResponseEntity.ok(true); 
-        } else {
-            return ResponseEntity.ok(false); 
-        }
-    }
-
     @GetMapping("/listDownload")
     public List<Map<String, String>> listDownload(@RequestParam String bucketName) {
         String bucket = "my-version-"+bucketName+"-list";
@@ -132,18 +118,6 @@ public class MyversionController {
                 .map(S3Object::key)
                 .map(this::extractSongInfo)
                 .collect(Collectors.toList());
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<String> Login(@RequestBody Map<String, String> requestData){
-        String id = requestData.get("id");
-        String pw = requestData.get("pw");
-        
-        if (id != null && !id.isEmpty() && pw != null && !pw.isEmpty()) {
-            return ResponseEntity.ok("true"); 
-        } else {
-            return ResponseEntity.ok("false");
-        }
     }
 
     @GetMapping("/download")
@@ -186,20 +160,4 @@ public class MyversionController {
             return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
         }
     }
-
-    //@PostMapping
-    //public ResponseEntity<Song> createSong(@RequestBody Song song) {
-        //Song savedSong = Repository.save(song);
-        //return ResponseEntity.ok(savedSong);
-    //}
-
-    // @DeleteMapping
-    // public ResponseEntity<Song> deleteSong(@RequestParam Long id) {
-    //     if (Repository.existsById(id)){
-    //         Repository.deleteById(id);
-    //         return ResponseEntity.noContent().build();
-    //     }else{
-    //         return ResponseEntity.notFound().build();
-    //     }
-    // }
 }
