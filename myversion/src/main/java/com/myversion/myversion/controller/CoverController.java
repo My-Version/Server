@@ -19,11 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,15 +30,20 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import com.myversion.myversion.domain.CoverSong;
+import com.myversion.myversion.service.CoverSongService;
+
 @RestController
 public class CoverController {
     
     private final S3Client s3Client;
-    
-   @Autowired
-   public CoverController(S3Client s3Client){
-       this.s3Client = s3Client;
-   }
+    private final CoverSongService coverSongService;
+
+    @Autowired
+    public CoverController(S3Client s3Client, CoverSongService coverSongService){
+        this.s3Client = s3Client;
+        this.coverSongService = coverSongService;
+    }
 
 
     @Autowired
@@ -67,41 +68,6 @@ public class CoverController {
         //ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
         
         //return response.getBody();
-    }
-
-    // @PostMapping("/compareUpload")
-    // public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file) throws IOException {
-    //     String json_location = "classpath:sim_result_20241003_210352.json";
-    //     Resource resource = resourceLoader.getResource(json_location);
-
-    //     String jsonData = new String(Files.readAllBytes(resource.getFile().toPath()));
-    //     return ResponseEntity.ok();
-    // }
-
-    @GetMapping("/compareScore")
-    public ResponseEntity<?> compareScore(@RequestParam String coverDir) throws IOException {
-        String jsonData = "{\"userDir\": \"Hello, World!\"}";
-
-        HttpHeaders jsonHeaders = new HttpHeaders();
-        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        return ResponseEntity.ok()
-            .headers(jsonHeaders)
-            .body(jsonData);
-    }
-
-    @GetMapping("/compareImage")
-    public ResponseEntity<?> compareImage(@RequestParam String imageFile) throws IOException {
-        
-        byte[] imageBytes = Files.readAllBytes(Paths.get("sim_wave_20241003_210352.png"));
-        InputStreamResource imageResource = new InputStreamResource(new ByteArrayInputStream(imageBytes));
-
-        HttpHeaders imageHeaders = new HttpHeaders();
-        imageHeaders.setContentType(MediaType.IMAGE_PNG);
-
-        return ResponseEntity.ok()
-                .headers(imageHeaders)
-                .body(imageResource);
     }
 
     @GetMapping("/listDownload")
@@ -139,7 +105,7 @@ public class CoverController {
         } else if (decodedFileName.endsWith(".wav")) {
             mediaType = MediaType.parseMediaType("audio/wav");
         } else {
-            mediaType = MediaType.APPLICATION_OCTET_STREAM; // 기본 MIME 타입
+            mediaType = MediaType.APPLICATION_OCTET_STREAM;
         }
 
         return ResponseEntity.ok()
