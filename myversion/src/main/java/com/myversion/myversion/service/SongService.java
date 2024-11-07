@@ -37,7 +37,7 @@ public class SongService {
             // Python 3.x 스크립트 호출
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
-                    "C:/Users/juyon/python/myversion/tone_compare.py",  //Python 스크립트경로
+                    "/home/ec2-user/tone_compare.py",  //Python 스크립트경로
                     User_Practice_Dir,  //첫번째 인자
                     Cover_Practice_Dir  // 두번째 인자
             );

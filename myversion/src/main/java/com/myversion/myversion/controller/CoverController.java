@@ -6,17 +6,18 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
-import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.*;
 
 import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
@@ -38,9 +36,6 @@ public class CoverController {
     
     private final S3Client s3Client;
     private final CoverSongService coverSongService;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String flaskUrl = "http://192.168.123.101:5000/upload";
@@ -52,44 +47,37 @@ public class CoverController {
         this.coverSongService = coverSongService;
     }
 
-
-
-
-
-    @PostMapping("/save")
-    public CoverSong saveCoverSong(@RequestBody CoverSong coverSong) {
+    
+    public CoverSong saveCoverSong(CoverSong coverSong) {
         return coverSongService.save(coverSong);
     }
-    // findAllByUserId
 
-    @GetMapping("/{userId}")
-    public List<CoverSong> findAllByUserId(@PathVariable String userId) {
+    public List<CoverSong> findAllByUserId(String userId) {
         return coverSongService.findAllByUserId(userId);
     }
 
-    @PatchMapping("/{id}")
-    public CoverSong updateCoverSong(@PathVariable Long id, @RequestBody CoverSong updatedFields) {
+    public CoverSong updateCoverSong(Long id, CoverSong updatedFields) {
         return coverSongService.updateCoverSong(id, updatedFields);
     }
 
 
 
     @PostMapping("/upload")
-    public String VoiceForCover(@RequestParam("file") MultipartFile file) throws IOException {
+    public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID, @RequestParam String music) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         
+        Map<String, String> musicInformation = new HashMap<String, String>();
+        musicInformation = extractSongInfo(music);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String musicInfo = objectMapper.writeValueAsString(musicInformation);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", file.getResource());
-        if (body.isEmpty()){
-            return "failure";
-        }else{
-            return "true";
-        }
-        //HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        //ResponseEntity<String> response = restTemplate.exchange(flaskUrl,  HttpMethod.POST, request, String.class);
+        body.add("music", musicInfo);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
         
-        //return response.getBody();
+        return response.getBody();
     }
 
     @GetMapping("/listDownload")
@@ -109,12 +97,11 @@ public class CoverController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, @RequestParam String bucketName) throws IOException {
-        String bucket = "my-version-"+bucketName+"-list";
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) throws IOException {
         String decodedFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.toString());
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
+                .bucket("my-version-cover-list")
                 .key(decodedFileName)
                 .build();
 
