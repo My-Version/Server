@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,8 +45,8 @@ public class CompareController {
     // 접속 url 반환
     @PostMapping("/compareUpload")
     public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file, Long coverId) throws IOException {
-        String recordUrl = String.valueOf(recordUpload(file));
-        String coverSongUrl = String.valueOf(getS3LocationByIdUsingAPI(coverId));
+        String recordUrl = recordUpload(file).getBody().toString();
+        String coverSongUrl = getS3LocationByIdUsingAPI(coverId).orElse("");
 
         // 1. CompareDB에 빈 Compare 생성 -> id 반환하기
         Long compareId = compareService.addCompare();
@@ -59,14 +60,13 @@ public class CompareController {
             String pngFileLocation = result.get(3);
             compareService.updateLocations(compareId, jsonFileLocation, pngFileLocation);
         });
-
         return ResponseEntity.ok(compareId);
     }
 
 
-    private Optional<String> getS3LocationByIdUsingAPI(Long Id) {
+    private Optional<String> getS3LocationByIdUsingAPI(Long id) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:9091/cover/s3location/" + Id;
+        String url = "http://localhost:9091/api/cover/s3location/" + id;
         return Optional.ofNullable(restTemplate.getForObject(url, String.class));
     }
 
