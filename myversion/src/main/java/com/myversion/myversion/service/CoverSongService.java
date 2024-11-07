@@ -3,6 +3,7 @@ package com.myversion.myversion.service;
 import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.repository.CoverSongSpringDataJpaRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,15 @@ public class CoverSongService {
 
     public List<CoverSong> findAllByUserId(String userId){
         return coverSongSpringDataJpaRepository.findByUserId(userId);
+    }
+
+    public Optional<CoverSong> findById(Long id){
+        return coverSongSpringDataJpaRepository.findById(id);
+    }
+
+    public Optional<String> findS3FileLocationById(Long id) {
+        return coverSongSpringDataJpaRepository.findById(id)
+                .map(CoverSong::getS3FileLocation); // `S3FileLocation`이 null이면 빈 Optional 반환
     }
 
     public CoverSong save(CoverSong coverSong){
