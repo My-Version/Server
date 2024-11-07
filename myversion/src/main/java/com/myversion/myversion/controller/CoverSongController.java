@@ -1,6 +1,5 @@
 package com.myversion.myversion.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -9,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,8 @@ import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
 
 @RestController
-public class CoverController {
+@RequestMapping("/api/cover")
+public class CoverSongController {
     
     private final S3Client s3Client;
     private final CoverSongService coverSongService;
@@ -42,14 +43,18 @@ public class CoverController {
 
 
     @Autowired
-    public CoverController(S3Client s3Client, CoverSongService coverSongService){
+    public CoverSongController(S3Client s3Client, CoverSongService coverSongService){
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
     }
-
-    
+  
     public CoverSong saveCoverSong(CoverSong coverSong) {
         return coverSongService.save(coverSong);
+    }
+
+    @GetMapping("/s3location/{coverSongId}")
+    public Optional<String> getS3Location(@PathVariable Long coverSongId){
+        return coverSongService.findS3FileLocationById(coverSongId);
     }
 
     public List<CoverSong> findAllByUserId(String userId) {
@@ -59,8 +64,6 @@ public class CoverController {
     public CoverSong updateCoverSong(Long id, CoverSong updatedFields) {
         return coverSongService.updateCoverSong(id, updatedFields);
     }
-
-
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID, @RequestParam String music) throws IOException {

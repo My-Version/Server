@@ -3,14 +3,10 @@ package com.myversion.myversion.service;
 import com.myversion.myversion.domain.Song;
 
 import com.myversion.myversion.repository.SongSpringDataJpaRepository;
-import org.python.util.PythonInterpreter;
+
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
 
 @Transactional
 public class SongService {
@@ -28,6 +24,7 @@ public class SongService {
         return song.getId();
     }
 
+<<<<<<< HEAD
     private static PythonInterpreter intPre;
     // 생성된 본인의 커버파일과 본인이 부른 연습본에 대한 유사도 분석(python파일 실행). 결과 파일 위치 반환
     // ([2]: jaon파일 위치, [3] png 파일 위치)
@@ -77,6 +74,8 @@ public class SongService {
         // ([2]: jaon파일 위치, [3] png 파일 위치)
     }
 
+=======
+>>>>>>> 925bf9e523109d4cc6c821d40ac54c5eb119253b
     private void validateDuplicateSong(Song song) {
         // title이랑 artist가 둘다 겹치는 경우는 추가 안함.
         songRepository.findByArtistAndTitle(song.getArtist(), song.getTitle()).ifPresent(
@@ -85,9 +84,5 @@ public class SongService {
                 }
         );
     }
-
-    //public List<Song> findAllSong(){
-        //return songRepository.findAll();
-    //}
 
 }

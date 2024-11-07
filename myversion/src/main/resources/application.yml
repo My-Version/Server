@@ -1,6 +1,9 @@
 spring:
   application:
     name: myversion
+  devtools:
+    restart:
+      enabled: false
   servlet:
     multipart:
       file-size-threshold: 1MB
@@ -16,7 +19,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
   h2:
     console:
