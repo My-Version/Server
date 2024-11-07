@@ -32,7 +32,7 @@ import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
 
 @RestController
-@RequestMapping()
+@RequestMapping
 public class CoverSongController {
     
     private final S3Client s3Client;

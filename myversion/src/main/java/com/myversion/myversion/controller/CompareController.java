@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @RestController
-@RequestMapping("/api/compare")
+@RequestMapping
 public class CompareController {
 
     private final S3Client s3Client;
