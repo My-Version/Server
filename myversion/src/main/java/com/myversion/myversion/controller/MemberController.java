@@ -26,18 +26,15 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public boolean Register(@RequestBody MemberRequestDTO memberRequestDTO) {
+    public Member Register(@RequestBody MemberRequestDTO memberRequestDTO) {
         String id = memberRequestDTO.getId();
         String name = memberRequestDTO.getName();
         String pw = memberRequestDTO.getPassword();
+        
+        Member member = new Member(id, pw, name);
 
-        if (getMember(id) != null){
-            return false;
-        }else{
-            Member member = new Member(id, pw, name);
-            memberService.saveMember(member);
-            return true;
-        }
+        return memberService.saveMember(member);
+
     }
 
     @PostMapping("/login")
