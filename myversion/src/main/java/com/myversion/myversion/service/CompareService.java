@@ -37,7 +37,7 @@ public class CompareService {
 
     public Long addCompare(){
         Compare compare = new Compare();
-        return compareSpringDataJpaRepository.save(compare).getId();
+        return compareSpringDataJpaR·epository.save(compare).getId();
     }
 
     public static CompletableFuture<List<String>> compareSongAsync(String userPracticeDir, String coverDir) {
@@ -52,7 +52,7 @@ public class CompareService {
             // Python 3.x 스크립트 호출
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
-                    "C:/Users/juyon/python/myversion/tone_compare.py",  //Python 스크립트 경로
+                    "/home/ec2-user/tone_compare.py",  //Python 스크립트 경로
                     User_Practice_Dir,  // 첫번째 인자
                     Cover_Dir  // 두 번째 인자
             );
