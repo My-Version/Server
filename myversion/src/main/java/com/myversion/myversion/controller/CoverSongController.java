@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +68,16 @@ public class CoverSongController {
     }
 
     @PostMapping("/upload")
-    public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID, @RequestParam String music) throws IOException {
+    public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID, @RequestParam String artist, @RequestParam String music) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        CoverSong coversong = new CoverSong(userID, artist, music,null,formattedDateTime);
+        saveCoverSong(coversong);
         
         Map<String, String> musicInformation = new HashMap<String, String>();
         musicInformation = extractSongInfo(music);
@@ -79,16 +88,16 @@ public class CoverSongController {
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
-        
+        coversong.setS3FileLocation("s3Link");
+        updateCoverSong(userID, coversong);
         return response.getBody();
     }
 
-    @GetMapping("/listDownload")
-    public List<Map<String, String>> listDownload(@RequestParam String bucketName) {
-        String bucket = "my-version-"+bucketName+"-list";
+    @GetMapping("/songListDownload")
+    public List<Map<String, String>> songListDownload() {
     
         ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
-                .bucket(bucket)
+                .bucket("my-version-song-list")
                 .build();
 
         ListObjectsV2Response listObjResponse = s3Client.listObjectsV2(listObjectsReqManual);
@@ -97,6 +106,11 @@ public class CoverSongController {
                 .map(S3Object::key)
                 .map(this::extractSongInfo)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/coverListDownload")
+    public List<Member> coverListDownload(@RequestParam String userID){
+        return find;
     }
 
     @GetMapping("/download")

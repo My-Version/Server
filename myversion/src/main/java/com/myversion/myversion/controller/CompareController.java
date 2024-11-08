@@ -1,30 +1,30 @@
 package com.myversion.myversion.controller;
 
 
-import com.myversion.myversion.service.CompareService;
-import com.myversion.myversion.service.S3UploadService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.myversion.myversion.service.CompareService;
+import com.myversion.myversion.service.S3UploadService;
+
 import software.amazon.awssdk.services.s3.S3Client;
 
 @RestController
@@ -66,7 +66,7 @@ public class CompareController {
 
     private Optional<String> getS3LocationByIdUsingAPI(Long id) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:9091/api/cover/s3location/" + id;
+        String url = "http://3.37.251.198:9091/api/cover/s3location/" + id;
         return Optional.ofNullable(restTemplate.getForObject(url, String.class));
     }
 
