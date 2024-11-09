@@ -45,23 +45,6 @@ public class CoverSongController {
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
     }
-  
-    public CoverSong saveCoverSong(CoverSong coverSong) {
-        return coverSongService.save(coverSong);
-    }
-
-    @GetMapping("/s3location/{coverSongId}")
-    public Optional<String> getS3Location(@PathVariable Long coverSongId){
-        return coverSongService.findS3FileLocationById(coverSongId);
-    }
-
-    public List<CoverSong> findAllByUserId(String userId) {
-        return coverSongService.findAllByUserId(userId);
-    }
-
-    public CoverSong updateCoverSong(Long id, CoverSong updatedFields) {
-        return coverSongService.updateCoverSong(id, updatedFields);
-    }
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID, @RequestParam String artist, @RequestParam String music) throws IOException {
@@ -73,7 +56,7 @@ public class CoverSongController {
         String formattedDateTime = now.format(formatter);
 
         CoverSong coversong = new CoverSong(userID, artist, music,null,formattedDateTime);
-        saveCoverSong(coversong);
+        coverSongService.save(coversong);
         
         Map<String, String> musicInformation = new HashMap<String, String>();
         musicInformation = extractSongInfo(music);
@@ -85,7 +68,7 @@ public class CoverSongController {
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
         coversong.setS3FileLocation("s3Link");
-        updateCoverSong(userID, coversong);
+        coverSongService.updateCoverSong(userID, coversong);
         return response.getBody();
     }
 
