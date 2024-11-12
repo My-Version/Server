@@ -12,10 +12,26 @@ public class Compare {
     @Column(nullable = false)
     private Long id;
 
+    private String userId;
     private String jsonLocation;
     private String imgLocation;
 
     public Compare() {}
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getJsonLocation() {
+        return jsonLocation;
+    }
+    public String getImgLocation() {
+        return imgLocation;
+    }
 
     public void setJsonLocation(String jsonLocation) {
         this.jsonLocation = jsonLocation;
