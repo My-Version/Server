@@ -1,6 +1,11 @@
 package com.myversion.myversion.controller;
 
-import com.myversion.myversion.util.ByteArrayMultipartFile;
+
+import com.myversion.myversion.domain.Member;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +61,7 @@ public class CoverSongController {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String formattedDateTime = now.format(formatter);
 
         CoverSong coversong = new CoverSong(userID, artist, music, null, formattedDateTime);
@@ -74,6 +79,7 @@ public class CoverSongController {
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
 
+
         ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -86,6 +92,7 @@ public class CoverSongController {
             throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
         }
         return response.getBody();
+
     }
 
     @GetMapping("/songList")
@@ -148,8 +155,4 @@ public class CoverSongController {
         }
     }
 
-
-    public MultipartFile convertToMultipartFile(byte[] fileData, String fileName) {
-        return new ByteArrayMultipartFile(fileData, fileName, "audio/wav");
-    }
 }

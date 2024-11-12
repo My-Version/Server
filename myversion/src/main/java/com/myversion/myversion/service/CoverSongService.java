@@ -21,6 +21,7 @@ public class CoverSongService {
     }
 
 
+
     public List<CoverSong> findAllByUserId(String userId){
         return coverSongSpringDataJpaRepository.findAllByUserid(userId);
     }
@@ -35,6 +36,7 @@ public class CoverSongService {
 
     public Optional<String> findArtistById(Long id){
         return coverSongSpringDataJpaRepository.findById(id).map(CoverSong::getArtist);
+
     }
 
     public CoverSong save(CoverSong coverSong){
