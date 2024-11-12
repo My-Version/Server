@@ -78,20 +78,22 @@ public class CoverSongController {
         body.add("file", file.getResource());
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        
+            
+        // ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
 
-
-        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            MultipartFile songFile = convertToMultipartFile(response.getBody().getBytes(), fileName + ".wav");
-            s3UploadService.uploadFile(songFile, "cover", (fileName));
-            coversong.setS3FileLocation(
-                    "https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-            coverSongService.updateCoverSong(coversong.getId(), coversong);
-        } else {
-            throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
-        }
-        return response.getBody();
+        // if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+        //     File songFile = new File(fileName + ".wav");
+        //     try (FileOutputStream fos = new FileOutputStream(songFile)) {
+        //         fos.write(response.getBody());
+        //     }
+        //     s3UploadService.uploadFile(songFile, "cover", (fileName));   
+        //     coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
+        //     coverSongService.updateCoverSong(coversong.getId(), coversong);
+        // } else {
+        //     throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
+        // }
+        return "success";
 
     }
 
@@ -110,10 +112,10 @@ public class CoverSongController {
                 .collect(Collectors.toList());
     }
 
-    // @GetMapping("/coverList")
-    // public List<Member> coverList(@RequestParam String userID){
-    //     return find;
-    // }
+    @GetMapping("/coverList")
+    public List<CoverSong> coverList(@RequestParam String userId){
+        return coverSongService.findAllByUserId(userId);
+    }
 
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) throws IOException {
