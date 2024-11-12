@@ -12,7 +12,8 @@ spring:
       max-request-size: 100MB
       enabled: true
   datasource:
-    url: jdbc:h2:/home/ec2-user/myversiondb
+    # url: jdbc:h2:/home/ec2-user/myversiondb
+    url: jdbc:h2:tcp://localhost/~/myversiondb
     driver-class-name: org.h2.Driver
     username: mv
     password: mv
