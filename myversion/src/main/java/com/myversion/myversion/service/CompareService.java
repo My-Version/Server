@@ -2,6 +2,7 @@ package com.myversion.myversion.service;
 
 import com.myversion.myversion.domain.Compare;
 import com.myversion.myversion.repository.CompareSpringDataJpaRepository;
+import com.myversion.myversion.util.Path;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -48,8 +49,11 @@ public class CompareService {
             }
             return compare.getImgLocation();
         }
-        System.out.println("JSON 파일이 존재하지 않음");
-        return null;
+        return "[ERROR] CompareNotFound, compareID : "+id+" is not exist";
+    }
+
+    public List<Compare> getCompareListByUserId(String userId) {
+        return compareSpringDataJpaRepository.findAllByUserid(userId);
     }
 
 
@@ -70,7 +74,7 @@ public class CompareService {
             // Python 3.x 스크립트 호출
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
-                    "/home/ec2-user/tone_compare.py",  //Python 스크립트 경로
+                    Path.compareFilePath_local,  //Python 스크립트 경로
                     User_Practice_Dir,  // 첫번째 인자
                     Cover_Dir  // 두 번째 인자
             );
