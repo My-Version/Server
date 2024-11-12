@@ -37,11 +37,7 @@ public class CoverSong {
     public String getCreatedDate() {
         return createdDate;
     }
-
-    public Iterable<Long> getIterableId() {
-        return Collections.singleton(id);
-    }
-
+    
     public Long getId() {
         return id;
     }

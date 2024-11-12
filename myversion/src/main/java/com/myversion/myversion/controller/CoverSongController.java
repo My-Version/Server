@@ -47,46 +47,50 @@ public class CoverSongController {
         this.s3UploadService = s3UploadService;
     }
 
-//    @PostMapping("/upload")
-//    public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID,
-//                                @RequestParam String artist, @RequestParam String music) throws IOException {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-//        String formattedDateTime = now.format(formatter);
-//
-//        CoverSong coversong = new CoverSong(userID, artist, music, null, formattedDateTime);
-//
-//        String fileName = music + "-" + userID + "-" + formattedDateTime;
-//        coverSongService.save(coversong);
-//
-//        Map<String, String> musicInformation = new HashMap<String, String>();
-//        musicInformation = extractSongInfo(music);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String musicInfo = objectMapper.writeValueAsString(musicInformation);
-//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-//
-//        body.add("file", file.getResource());
-//        body.add("music", musicInfo);
-//        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-//
-//
-//        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
-//
-//        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-//            MultipartFile songFile = convertToMultipartFile(response.getBody().getBytes(), fileName + ".wav");
-//            s3UploadService.uploadFile(songFile, "cover", (fileName));
-//            coversong.setS3FileLocation(
-//                    "https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-//            coverSongService.updateCoverSong(coversong.getId(), coversong);
-//        } else {
-//            throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
-//        }
-//        return response.getBody();
-//
-//    }
+
+    @PostMapping("/upload")
+    public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID,
+                                @RequestParam String artist, @RequestParam String music) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String formattedDateTime = now.format(formatter);
+
+        CoverSong coversong = new CoverSong(userID, artist, music, null, formattedDateTime);
+
+        coverSongService.save(coversong);
+
+        Map<String, String> musicInformation = new HashMap<String, String>();
+        musicInformation = extractSongInfo(music);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String musicInfo = objectMapper.writeValueAsString(musicInformation);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+        body.add("file", file.getResource());
+        body.add("music", musicInfo);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        
+            
+        ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            String fileName = music + "-" + userID + "-" + formattedDateTime+".wav";
+            File songFile = new File(fileName);
+            try (FileOutputStream fos = new FileOutputStream(songFile)) {
+                fos.write(response.getBody());
+            }
+            s3UploadService.uploadFile(songFile, "cover", (fileName));   
+            coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName);
+            coverSongService.updateCoverSong(coversong.getId(), coversong);
+        } else {
+            throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
+        }
+        return "success";
+
+    }
+
 
     @GetMapping("/songList")
     public List<Map<String, String>> songList() {
@@ -103,10 +107,10 @@ public class CoverSongController {
                 .collect(Collectors.toList());
     }
 
-    // @GetMapping("/coverList")
-    // public List<Member> coverList(@RequestParam String userID){
-    //     return find;
-    // }
+    @GetMapping("/coverList")
+    public List<CoverSong> coverList(@RequestParam String userId){
+        return coverSongService.findAllByUserId(userId);
+    }
 
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) throws IOException {
