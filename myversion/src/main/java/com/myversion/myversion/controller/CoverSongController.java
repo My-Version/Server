@@ -66,7 +66,6 @@ public class CoverSongController {
 
         CoverSong coversong = new CoverSong(userID, artist, music, null, formattedDateTime);
 
-        String fileName = music + "-" + userID + "-" + formattedDateTime;
         coverSongService.save(coversong);
 
         Map<String, String> musicInformation = new HashMap<String, String>();
@@ -80,19 +79,20 @@ public class CoverSongController {
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
         
             
-        // ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
 
-        // if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-        //     File songFile = new File(fileName + ".wav");
-        //     try (FileOutputStream fos = new FileOutputStream(songFile)) {
-        //         fos.write(response.getBody());
-        //     }
-        //     s3UploadService.uploadFile(songFile, "cover", (fileName));   
-        //     coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-        //     coverSongService.updateCoverSong(coversong.getId(), coversong);
-        // } else {
-        //     throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
-        // }
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            String fileName = music + "-" + userID + "-" + formattedDateTime+".wav";
+            File songFile = new File(fileName);
+            try (FileOutputStream fos = new FileOutputStream(songFile)) {
+                fos.write(response.getBody());
+            }
+            s3UploadService.uploadFile(songFile, "cover", (fileName));   
+            coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName);
+            coverSongService.updateCoverSong(coversong.getId(), coversong);
+        } else {
+            throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
+        }
         return "success";
 
     }
