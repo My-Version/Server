@@ -19,16 +19,13 @@ public class CoverSongService {
         this.coverSongSpringDataJpaRepository = coverSongSpringDataJpaRepository;
     }
 
-    public List<CoverSong> findAllByUserId(String userId){
+    public Optional<CoverSong> findByUserId(String userId){
         return coverSongSpringDataJpaRepository.findByUserId(userId);
     }
 
-    public Optional<CoverSong> findById(Long id){
-        return coverSongSpringDataJpaRepository.findById(id);
-    }
 
-    public Optional<String> findS3FileLocationById(Long id) {
-        return coverSongSpringDataJpaRepository.findById(id)
+    public Optional<String> findS3FileLocationByUserId(String userId) {
+        return coverSongSpringDataJpaRepository.findByUserId(userId)
                 .map(CoverSong::getS3FileLocation); // `S3FileLocation`이 null이면 빈 Optional 반환
     }
 
@@ -36,9 +33,9 @@ public class CoverSongService {
         return coverSongSpringDataJpaRepository.save(coverSong);
     }
 
-    public CoverSong updateCoverSong(Long id, CoverSong coverSong){
+    public CoverSong updateCoverSong(String userId, CoverSong coverSong){
         CoverSong updatedCoverSong;
-        updatedCoverSong = coverSongSpringDataJpaRepository.findById(id).get();
+        updatedCoverSong = coverSongSpringDataJpaRepository.findByUserId(userId).get();
         if (updatedCoverSong == null) {
             throw new IllegalStateException("찾을 수 없는 커버곡입니다.");
         }

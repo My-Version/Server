@@ -1,5 +1,6 @@
 package com.myversion.myversion.controller;
 
+import com.myversion.myversion.domain.Member;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
