@@ -20,8 +20,6 @@ public class CoverSongService {
         this.coverSongSpringDataJpaRepository = coverSongSpringDataJpaRepository;
     }
 
-
-
     public List<CoverSong> findAllByUserId(String userId){
         return coverSongSpringDataJpaRepository.findAllByUserid(userId);
     }
