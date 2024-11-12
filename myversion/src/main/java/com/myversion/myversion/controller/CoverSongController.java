@@ -1,6 +1,9 @@
 package com.myversion.myversion.controller;
 
 import com.myversion.myversion.domain.Member;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +21,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.*;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -78,18 +80,22 @@ public class CoverSongController {
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            MultipartFile songFile = convertToMultipartFile(response.getBody().getBytes(), fileName + ".wav");
+            byte[] fileData = response.getBody();
+    
+            File songFile = new File(fileName + ".wav");
+            try (FileOutputStream fos = new FileOutputStream(songFile)) {
+                fos.write(fileData);
+            }
             s3UploadService.uploadFile(songFile, "cover", (fileName));
-            coversong.setS3FileLocation(
-                    "https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
+            coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
             coverSongService.updateCoverSong(userID, coversong);
         } else {
             throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
         }
-        return response.getBody();
+        return "success";
     }
 
     @GetMapping("/songList")
@@ -150,14 +156,5 @@ public class CoverSongController {
         } else {
             return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
         }
-    }
-
-    public MultipartFile convertToMultipartFile(byte[] fileData, String fileName) {
-        return new MockMultipartFile(
-                fileName,
-                fileName,
-                "audio/wav",
-                fileData
-        );
     }
 }

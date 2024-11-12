@@ -19,16 +19,16 @@ public class CoverSongService {
         this.coverSongSpringDataJpaRepository = coverSongSpringDataJpaRepository;
     }
 
-    public Optional<CoverSong> findByUserId(String userId){
-        return coverSongSpringDataJpaRepository.findByUserId(userId);
-    }
-
     public List<CoverSong> findAllByUserId(String userId){
-        return coverSongSpringDataJpaRepository.findAllById(findByUserId(userId).get().getId());
+        return coverSongSpringDataJpaRepository.findAllById(userId);
     }
 
-    public Optional<String> findS3FileLocationById(String userId) {
-        return coverSongSpringDataJpaRepository.findByUserId(userId)
+    public Optional<CoverSong> findById(Long id){
+        return coverSongSpringDataJpaRepository.findById(id);
+    }
+
+    public Optional<String> findS3FileLocationById(Long id) {
+        return coverSongSpringDataJpaRepository.findById(id)
                 .map(CoverSong::getS3FileLocation); // `S3FileLocation`이 null이면 빈 Optional 반환
     }
 
