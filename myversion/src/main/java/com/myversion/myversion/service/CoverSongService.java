@@ -36,7 +36,7 @@ public class CoverSongService {
         return coverSongSpringDataJpaRepository.save(coverSong);
     }
 
-    public CoverSong updateCoverSong(Long id, CoverSong coverSong){
+    public CoverSong updateCoverSong(String id, CoverSong coverSong){
         CoverSong updatedCoverSong;
         updatedCoverSong = coverSongSpringDataJpaRepository.findById(id).get();
         if (updatedCoverSong == null) {
