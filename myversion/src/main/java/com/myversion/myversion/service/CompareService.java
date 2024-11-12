@@ -1,8 +1,5 @@
 package com.myversion.myversion.service;
 
-import com.myversion.myversion.domain.Compare;
-import com.myversion.myversion.repository.CompareSpringDataJpaRepository;
-import com.myversion.myversion.util.Path;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -10,8 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.myversion.myversion.domain.Compare;
+import com.myversion.myversion.repository.CompareSpringDataJpaRepository;
 
 @Service
 public class CompareService {
@@ -74,7 +75,7 @@ public class CompareService {
             // Python 3.x 스크립트 호출
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
-                    Path.compareFilePath_local,  //Python 스크립트 경로
+                    "/home/ec2-user/tone_compare.py",  //Python 스크립트 경로
                     User_Practice_Dir,  // 첫번째 인자
                     Cover_Dir  // 두 번째 인자
             );
