@@ -37,7 +37,7 @@ public class CompareService {
 
     public Long addCompare(){
         Compare compare = new Compare();
-        return compareSpringDataJpaR·epository.save(compare).getId();
+        return compareSpringDataJpaRepository.save(compare).getId();
     }
 
     public static CompletableFuture<List<String>> compareSongAsync(String userPracticeDir, String coverDir) {
