@@ -22,18 +22,36 @@ public class CompareService {
         this.compareSpringDataJpaRepository = compareSpringDataJpaRepository;
     }
 
-    public Compare updateLocations(Long id, String jsonLocation, String imgLocation) {
+    public boolean updateCompareFileLocations(Long id, String jsonLocation, String imgLocation) {
         Optional<Compare> optionalCompare = compareSpringDataJpaRepository.findById(id);
 
         if (optionalCompare.isPresent()) {
             Compare compare = optionalCompare.get();
             compare.setJsonLocation(jsonLocation);
             compare.setImgLocation(imgLocation);
-            return compareSpringDataJpaRepository.save(compare); // 업데이트 후 저장
+            compareSpringDataJpaRepository.save(compare);
+            return true; // 업데이트 후 저장
         } else {
-            throw new IllegalStateException("Compare 엔티티를 찾을 수 없습니다: ID = " + id);
+            System.out.println("Compare 파일을 찾을 수 없습니다: ID = " + id);
+            return false;
         }
     }
+
+    // id : 결과를 찾으려는 Compare의 아이디,
+    // JsonOrImg : true -> Json 파일 S3위치 반환, false -> img파일 위치 반환
+    public String getCompareResultS3Path(Long id, boolean JsonOrImg) {
+        Optional<Compare> optionalCompare = compareSpringDataJpaRepository.findById(id);
+        if (optionalCompare.isPresent()) {
+            Compare compare = optionalCompare.get();
+            if (JsonOrImg) {
+                return compare.getJsonLocation();
+            }
+            return compare.getImgLocation();
+        }
+        System.out.println("JSON 파일이 존재하지 않음");
+        return null;
+    }
+
 
     public Long addCompare(){
         Compare compare = new Compare();
@@ -45,7 +63,7 @@ public class CompareService {
     }
 
     // 생성된 본인의 커버파일과 본인이 부른 연습본에 대한 유사도 분석(python파일 실행). 결과 파일 위치 반환
-    // ([2]: jaon파일 위치, [3] png 파일 위치)
+    // (result[2]: jaon파일 위치, result[3] png 파일 위치)
     private static List<String> compareSong(String User_Practice_Dir, String Cover_Dir) {
         List<String> result = new ArrayList<String>();
         try {

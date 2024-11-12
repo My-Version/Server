@@ -44,8 +44,6 @@ public class S3UploadService {
         return s3Client.utilities().getUrl(builder -> builder.bucket(bucketName).key(key)).toExternalForm();
     }
 
-
-
     // MultipartFile을 File로 변환
     private Optional<File> convertToFile(MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty()) {

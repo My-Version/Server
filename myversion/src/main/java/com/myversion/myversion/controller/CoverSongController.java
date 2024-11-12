@@ -1,26 +1,25 @@
 package com.myversion.myversion.controller;
 
+
 import com.myversion.myversion.domain.Member;
 
 import java.io.File;
 import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.*;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -79,26 +78,21 @@ public class CoverSongController {
         body.add("file", file.getResource());
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        
-        s3UploadService.uploadFile(file, "cover", (fileName+".wav"));
-        coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-        coverSongService.updateCoverSong(userID, coversong);
-        //ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
 
-        // if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-        //     byte[] fileData = response.getBody();
-    
-        //     File songFile = new File(fileName + ".wav");
-        //     try (FileOutputStream fos = new FileOutputStream(songFile)) {
-        //         fos.write(fileData);
-        //     }
-        //     s3UploadService.uploadFile(songFile, "cover", (fileName));
-        //     coversong.setS3FileLocation("https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-        //     coverSongService.updateCoverSong(userID, coversong);
-        // } else {
-        //     throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
-        // }
-        return "success";
+
+        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            MultipartFile songFile = convertToMultipartFile(response.getBody().getBytes(), fileName + ".wav");
+            s3UploadService.uploadFile(songFile, "cover", (fileName));
+            coversong.setS3FileLocation(
+                    "https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
+            coverSongService.updateCoverSong(coversong.getId(), coversong);
+        } else {
+            throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
+        }
+        return response.getBody();
+
     }
 
     @GetMapping("/songList")
@@ -160,4 +154,5 @@ public class CoverSongController {
             return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
         }
     }
+
 }
