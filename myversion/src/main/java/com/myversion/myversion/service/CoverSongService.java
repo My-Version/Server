@@ -19,9 +19,9 @@ public class CoverSongService {
         this.coverSongSpringDataJpaRepository = coverSongSpringDataJpaRepository;
     }
 
-    public List<CoverSong> findAllByUserId(String userId){
-        return coverSongSpringDataJpaRepository.findAllById(userId);
-    }
+    // public List<CoverSong> findAllByUserId(String userId){
+    //     return coverSongSpringDataJpaRepository.findAllById(userId);
+    // }
 
     public Optional<CoverSong> findById(Long id){
         return coverSongSpringDataJpaRepository.findById(id);
