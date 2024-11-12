@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.myversion.myversion.domain.CoverSong;
@@ -19,26 +20,30 @@ public class CoverSongService {
         this.coverSongSpringDataJpaRepository = coverSongSpringDataJpaRepository;
     }
 
-    public Optional<CoverSong> findByUserId(String userId){
-        return coverSongSpringDataJpaRepository.findByUserId(userId);
-    }
 
     public List<CoverSong> findAllByUserId(String userId){
-        return coverSongSpringDataJpaRepository.findAllById(findByUserId(userId).get().getId());
+        return coverSongSpringDataJpaRepository.findAllByUserid(userId);
     }
 
-    public Optional<String> findS3FileLocationById(String userId) {
-        return coverSongSpringDataJpaRepository.findByUserId(userId)
-                .map(CoverSong::getS3FileLocation); // `S3FileLocation`이 null이면 빈 Optional 반환
+    public Optional<String> findS3FileLocationById(Long id) {
+        Optional<CoverSong> coverSong = coverSongSpringDataJpaRepository.findById(id);
+        if (coverSong.isEmpty()) {
+            System.out.println("CoverSong not found for ID: " + id);
+        }
+        return coverSong.map(CoverSong::getS3FileLocation);
+    }
+
+    public Optional<String> findArtistById(Long id){
+        return coverSongSpringDataJpaRepository.findById(id).map(CoverSong::getArtist);
     }
 
     public CoverSong save(CoverSong coverSong){
         return coverSongSpringDataJpaRepository.save(coverSong);
     }
 
-    public CoverSong updateCoverSong(String userId, CoverSong coverSong){
+    public CoverSong updateCoverSong(Long id, CoverSong coverSong){
         CoverSong updatedCoverSong;
-        updatedCoverSong = coverSongSpringDataJpaRepository.findByUserId(userId).get();
+        updatedCoverSong = coverSongSpringDataJpaRepository.findById(id).get();
         if (updatedCoverSong == null) {
             throw new IllegalStateException("찾을 수 없는 커버곡입니다.");
         }

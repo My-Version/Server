@@ -1,6 +1,7 @@
 package com.myversion.myversion.controller;
 
 
+import com.myversion.myversion.service.CoverSongService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,19 +35,22 @@ public class CompareController {
     private final S3Client s3Client;
     private final S3UploadService s3UploadService;
     private final CompareService compareService;
+    private final CoverSongService coverSongService;
 
     @Autowired
-    public CompareController(S3Client s3Client, S3UploadService s3UploadService, CompareService compareService) {
+    public CompareController(S3Client s3Client, S3UploadService s3UploadService, CompareService compareService,
+                             CoverSongService coverSongService) {
         this.s3Client = s3Client;
         this.s3UploadService = s3UploadService;
         this.compareService = compareService;
+        this.coverSongService = coverSongService;
     }
 
-    // 접속 url 반환
+    // Long : compareID반환 -> 결과 탐색에 사용
     @PostMapping("/compareUpload")
     public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file, Long coverId) throws IOException {
         String recordUrl = recordUpload(file).getBody().toString();
-        String coverSongUrl = getS3LocationByIdUsingAPI(coverId).orElse("");
+        String coverSongUrl =coverSongService.findS3FileLocationById(coverId).orElse("");
 
         // 1. CompareDB에 빈 Compare 생성 -> id 반환하기
         Long compareId = compareService.addCompare();
@@ -58,18 +62,13 @@ public class CompareController {
             // 2. id로 CompareDB 에 json이랑 img파일 링크 저장
             String jsonFileLocation = result.get(2);
             String pngFileLocation = result.get(3);
-            compareService.updateLocations(compareId, jsonFileLocation, pngFileLocation);
+            compareService.updateCompareFileLocations(compareId, jsonFileLocation, pngFileLocation);
         });
         return ResponseEntity.ok(compareId);
     }
 
 
-    private Optional<String> getS3LocationByIdUsingAPI(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://3.37.251.198:9091/api/cover/s3location/" + id;
-        return Optional.ofNullable(restTemplate.getForObject(url, String.class));
-    }
-
+    // compare DB에서 생성된 이미지 파일의 S3위치를 읽어서 JSON 다운로드해서 넘김
     @GetMapping("/compareResult")
     public ResponseEntity<?> compareResult(@RequestParam String compareResultDir) throws IOException {
         String jsonData = "{\"userDir\":\"Hello, World!\"}";
@@ -81,9 +80,11 @@ public class CompareController {
                 .body(jsonData);
     }
 
+    // compare DB에서 생성된 이미지 파일의 S3위치를 읽어서 바이트코드로 넘김
     @GetMapping("/compareImage")
-    public ResponseEntity<?> compareImage(@RequestParam String imageFile) throws IOException {
-        byte[] imageBytes = Files.readAllBytes(Paths.get("sim_wave_20241003_210352.png"));
+    public ResponseEntity<?> compareImage(@RequestParam Long compareId) throws IOException {
+        String imgS3Path = compareService.getCompareResultS3Path(compareId, false);  // 여기에 링크
+        byte[] imageBytes = Files.readAllBytes(Paths.get(imgS3Path));
         InputStreamResource imageResource = new InputStreamResource(new ByteArrayInputStream(imageBytes));
 
         HttpHeaders imageHeaders = new HttpHeaders();

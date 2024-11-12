@@ -1,24 +1,20 @@
 package com.myversion.myversion.controller;
 
-import com.myversion.myversion.domain.Member;
+import com.myversion.myversion.util.ByteArrayMultipartFile;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.*;
-import org.springframework.mock.web.MockMultipartFile;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -85,7 +81,7 @@ public class CoverSongController {
             s3UploadService.uploadFile(songFile, "cover", (fileName));
             coversong.setS3FileLocation(
                     "https://my-version-cover-list.s3.ap-northeast-2.amazonaws.com/" + fileName + ".wav");
-            coverSongService.updateCoverSong(userID, coversong);
+            coverSongService.updateCoverSong(coversong.getId(), coversong);
         } else {
             throw new IOException("Flask 서버에서 파일을 성공적으로 받지 못했습니다.");
         }
@@ -152,12 +148,8 @@ public class CoverSongController {
         }
     }
 
+
     public MultipartFile convertToMultipartFile(byte[] fileData, String fileName) {
-        return new MockMultipartFile(
-                fileName,
-                fileName,
-                "audio/wav",
-                fileData
-        );
+        return new ByteArrayMultipartFile(fileData, fileName, "audio/wav");
     }
 }

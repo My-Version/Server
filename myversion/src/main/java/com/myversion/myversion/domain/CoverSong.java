@@ -38,8 +38,12 @@ public class CoverSong {
         return createdDate;
     }
 
-    public Iterable<Long> getId() {
+    public Iterable<Long> getIterableId() {
         return Collections.singleton(id);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getArtist() {
@@ -53,6 +57,7 @@ public class CoverSong {
     public String getSongTitle() {
         return songTitle;
     }
+
 
     public void setS3FileLocation(String s3FileLocation) {
         this.s3FileLocation = s3FileLocation;
