@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Collections;
 
 @Entity
 public class CoverSong {
@@ -37,8 +38,8 @@ public class CoverSong {
         return createdDate;
     }
 
-    public Long getId() {
-        return id;
+    public Iterable<Long> getId() {
+        return Collections.singleton(id);
     }
 
     public String getArtist() {

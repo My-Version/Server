@@ -23,6 +23,10 @@ public class CoverSongService {
         return coverSongSpringDataJpaRepository.findByUserId(userId);
     }
 
+    public List<CoverSong> findAllByUserId(String userId){
+        return coverSongSpringDataJpaRepository.findAllById(findByUserId(userId).get().getId());
+    }
+
     public Optional<String> findS3FileLocationById(String userId) {
         return coverSongSpringDataJpaRepository.findByUserId(userId)
                 .map(CoverSong::getS3FileLocation); // `S3FileLocation`이 null이면 빈 Optional 반환
