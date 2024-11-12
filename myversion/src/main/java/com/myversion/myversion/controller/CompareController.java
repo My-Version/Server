@@ -96,6 +96,6 @@ public class CompareController {
 
     private ResponseEntity<?> recordUpload(MultipartFile file) throws IOException {
         return ResponseEntity.ok(
-                s3UploadService.uploadFile(file, "user-record", ("userRecords/" + file.getOriginalFilename())));
+            s3UploadService.uploadFile(file, "user-record", ("userRecords/" + file.getOriginalFilename())));
     }
 }

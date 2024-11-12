@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.tomcat.util.json.JSONParser;
@@ -26,6 +27,8 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+
+import com.myversion.myversion.service.S3UploadService;
 import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
 
@@ -35,15 +38,17 @@ public class CoverSongController {
     
     private final S3Client s3Client;
     private final CoverSongService coverSongService;
+    private final S3UploadService s3UploadService;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String flaskUrl = "http://192.168.123.101:5000/upload";
 
 
     @Autowired
-    public CoverSongController(S3Client s3Client, CoverSongService coverSongService){
+    public CoverSongController(S3Client s3Client, S3UploadService s3UploadService, CoverSongService coverSongService){
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
+        this.s3UploadService = s3UploadService;
     }
 
     @PostMapping("/upload")
@@ -67,8 +72,10 @@ public class CoverSongController {
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, String.class);
+        coverUpload(response.getBody(),music,userID,formattedDateTime);
         coversong.setS3FileLocation("s3Link");
         coverSongService.updateCoverSong(userID, coversong);
+        
         return response.getBody();
     }
 
@@ -130,5 +137,10 @@ public class CoverSongController {
         } else {
             return Map.of("music", nameAndArtist.trim(), "singer", "Unknown");
         }
+    }
+    
+    private ResponseEntity<?> coverUpload(MultipartFile file, String songName, String userID, String createdDate) throws IOException {
+        return ResponseEntity.ok(
+            s3UploadService.uploadFile(file, "cover", (songName + "-" + userID + "-" + createdDate)));
     }
 }
