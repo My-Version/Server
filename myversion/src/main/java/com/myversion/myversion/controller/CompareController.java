@@ -41,42 +41,47 @@ public class CompareController {
     // Long : compareID반환 -> 결과 탐색에 사용
     @PostMapping("/compareUpload")
     public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file, Long coverId) throws IOException {
-        String recordUrl = recordUpload(file).getBody().toString();
-        String coverSongUrl =coverSongService.findS3FileLocationById(coverId).orElse("");
+        String recordUrl = null;
+        String userId = coverSongService.getUserIdmById(coverId);
+        String coverSongUrl = coverSongService.findS3FileLocationById(coverId).orElse("");
 
-        // 1. CompareDB에 빈 Compare 생성 -> id 반환하기
-        Long compareId = compareService.addCompare();
+        Long compareId = null;
+        try {
+            recordUrl = recordUpload(file).getBody().toString();
+            // 사용자 이름, 녹음파일 링크, 커버파일 링크를 DB에 저장
+            compareId = compareService.addCompare(userId, recordUrl, coverSongUrl);
+        } catch (IOException e) {
+            // DB 등록 실패
 
+            return null;
+        }
         // 비동기 비교 작업 시작
         CompletableFuture<List<String>> futureResult = CompareService.compareSongAsync(recordUrl, coverSongUrl);
         // 작업 완료 후 실행할 동작
+        Long finalCompareId = compareId;
         futureResult.thenAccept(result -> {
-            String jsonFileLocation = result.stream()
-                    .filter(item -> item.startsWith("https:") && item.endsWith(".json"))
-                    .findFirst()
-                    .orElse(null);
+            String creatTime = extractCompareResult(result, "createTime").split(": ")[1];
+            String similarity = extractCompareResult(result, "similarity").split(": ")[1];
+            String worst_time = extractCompareResult(result, "worst_time").split(": ")[1];
+            String best_time = extractCompareResult(result, "best_time").split(": ")[1];
+            String time_length = extractCompareResult(result, "time_length").split(": ")[1];
 
             // https:로 시작하고 .png로 끝나는 문자열을 필터링하여 찾기
             String pngFileLocation = result.stream()
                     .filter(item -> item.startsWith("https:") && item.endsWith(".png"))
                     .findFirst()
                     .orElse(null);
-            compareService.updateCompareFileLocations(compareId, jsonFileLocation, pngFileLocation);
+
+            // DB 등록 -> 모든 json file 데이터를 DB에 속성 값으로 업데이트
+            compareService.updateResult(finalCompareId, creatTime, similarity, worst_time, best_time, time_length, pngFileLocation);
         });
         return ResponseEntity.ok(compareId);
     }
 
-    // compare DB에서 Json 파일의 S3 링크를 넘김
-    @GetMapping("/compareResult")
-    public String compareResult(@RequestParam Long compareId) throws IOException {
-        return compareService.getCompareResultS3Path(compareId, true);
+    private String extractCompareResult(List<String>result, String factor) {
+        return result.stream().filter(item ->item.startsWith(factor)).findFirst().orElse(null);
     }
 
-    // compare DB에서 이미지 파일의 S3 링크를 넘김
-    @GetMapping("/compareImage")
-    public String compareImage(@RequestParam Long compareId) throws IOException {
-        return compareService.getCompareResultS3Path(compareId, false);
-    }
 
     // userId의 compareList
     @GetMapping("/compareList")

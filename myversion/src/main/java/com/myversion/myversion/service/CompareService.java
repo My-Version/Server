@@ -24,43 +24,28 @@ public class CompareService {
         this.compareSpringDataJpaRepository = compareSpringDataJpaRepository;
     }
 
-    public boolean updateCompareFileLocations(Long id, String jsonLocation, String imgLocation) {
-        Optional<Compare> optionalCompare = compareSpringDataJpaRepository.findById(id);
-
-        if (optionalCompare.isPresent()) {
-            Compare compare = optionalCompare.get();
-            compare.setJsonLocation(jsonLocation);
-            compare.setImgLocation(imgLocation);
-            compareSpringDataJpaRepository.save(compare);
-            return true; // 업데이트 후 저장
-        } else {
-            System.out.println("Compare 파일을 찾을 수 없습니다: ID = " + id);
-            return false;
-        }
-    }
-
-    // id : 결과를 찾으려는 Compare의 아이디,
-    // JsonOrImg : true -> Json 파일 S3위치 반환, false -> img파일 위치 반환
-    public String getCompareResultS3Path(Long id, boolean JsonOrImg) {
-        Optional<Compare> optionalCompare = compareSpringDataJpaRepository.findById(id);
-        if (optionalCompare.isPresent()) {
-            Compare compare = optionalCompare.get();
-            if (JsonOrImg) {
-                return compare.getJsonLocation();
-            }
-            return compare.getImgLocation();
-        }
-        return "[ERROR] CompareNotFound, compareID : "+id+" is not exist";
-    }
 
     public List<Compare> getCompareListByUserId(String userId) {
         return compareSpringDataJpaRepository.findAllByUserid(userId);
     }
 
-
-    public Long addCompare(){
+    public Long addCompare(String userId, String recordLocation, String coverSongLocation){
         Compare compare = new Compare();
+        compare.setUserId(userId);
+        compare.setRecordLocation(recordLocation);
+        compare.setCoverLocation(coverSongLocation);
         return compareSpringDataJpaRepository.save(compare).getId();
+    }
+
+    public void updateResult(Long compareId, String createTime, String similarity, String worst_time, String best_time, String time_length, String imgLocation) {
+        Compare compare = compareSpringDataJpaRepository.findById(compareId).get();
+        compare.setCreateTime(createTime);
+        compare.setSimilarity(similarity);
+        compare.setWorst_time(worst_time);
+        compare.setBest_time(best_time);
+        compare.setTime_length(time_length);
+        compare.setImgLocation(imgLocation);
+        compareSpringDataJpaRepository.save(compare);
     }
 
     public static CompletableFuture<List<String>> compareSongAsync(String userPracticeDir, String coverDir) {
