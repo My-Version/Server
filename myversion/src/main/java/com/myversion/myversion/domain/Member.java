@@ -13,11 +13,10 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-
     protected Member() {
     }
 
-    public Member(String id, String password, String name) {
+    public Member(String id, String password) {
         this.id = id;
         this.password = password;
     }
