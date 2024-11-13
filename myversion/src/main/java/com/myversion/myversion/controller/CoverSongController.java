@@ -39,8 +39,9 @@ public class CoverSongController {
     private final S3UploadService s3UploadService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskUrl = "http://192.168.123.101:5000/upload";
-
+    // private final String flaskUrl = "http://3.37.251.198:5000/upload";
+    // private final String flaskUrl = "http://http://221.146.39.250:5000/upload";
+    private final String flaskUrl = "http://http://221.146.39.250:5000/test";
 
     @Autowired
     public CoverSongController(S3Client s3Client, S3UploadService s3UploadService, CoverSongService coverSongService) {
@@ -48,7 +49,6 @@ public class CoverSongController {
         this.coverSongService = coverSongService;
         this.s3UploadService = s3UploadService;
     }
-
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID,
