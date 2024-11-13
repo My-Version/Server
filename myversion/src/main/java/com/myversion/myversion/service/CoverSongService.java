@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.myversion.myversion.domain.CoverSong;
@@ -34,7 +33,10 @@ public class CoverSongService {
 
     public Optional<String> findArtistById(Long id){
         return coverSongSpringDataJpaRepository.findById(id).map(CoverSong::getArtist);
+    }
 
+    public String getUserIdmById(Long id){
+        return coverSongSpringDataJpaRepository.findById(id).get().getUserId();
     }
 
     public CoverSong save(CoverSong coverSong){

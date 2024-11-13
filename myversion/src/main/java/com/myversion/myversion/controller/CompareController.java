@@ -43,7 +43,7 @@ public class CompareController {
     @PostMapping("/compareUpload")
     public ResponseEntity<?> compareUpload(@RequestParam("file") MultipartFile file, Long coverId) throws IOException {
         String recordUrl = null;
-        String userId = coverSongService.findUserIdmById(coverId);
+        String userId = coverSongService.getUserIdmById(coverId);
         String coverSongUrl = coverSongService.findS3FileLocationById(coverId).orElse("");
 
         Long compareId = null;
