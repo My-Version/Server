@@ -1,39 +1,45 @@
 package com.myversion.myversion.controller;
 
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.*;
-
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
-
-
-import com.myversion.myversion.service.S3UploadService;
 import com.myversion.myversion.domain.CoverSong;
 import com.myversion.myversion.service.CoverSongService;
+import com.myversion.myversion.service.S3UploadService;
+
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 @RestController
 @RequestMapping
@@ -44,16 +50,15 @@ public class CoverSongController {
     private final S3UploadService s3UploadService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskUrl = "http://192.168.123.101:5000/upload";
-
+    private final String flaskUrl = "http://43.200.45.16:5000/upload";
 
     @Autowired
+
     public CoverSongController(S3Client s3Client, S3UploadService s3UploadService, CoverSongService coverSongService) {
         this.s3Client = s3Client;
         this.coverSongService = coverSongService;
         this.s3UploadService = s3UploadService;
     }
-
 
     @PostMapping("/upload")
     public String VoiceForCover(@RequestParam("file") MultipartFile file, @RequestParam String userID,
@@ -61,7 +66,7 @@ public class CoverSongController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String formattedDateTime = now.format(formatter);
 
@@ -69,17 +74,13 @@ public class CoverSongController {
 
         coverSongService.save(coversong);
 
-        Map<String, String> musicInformation = new HashMap<String, String>();
-        musicInformation = extractSongInfo(music);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String musicInfo = objectMapper.writeValueAsString(musicInformation);
+        String musicInfo = artist + "_" + music;
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
         body.add("file", file.getResource());
         body.add("music", musicInfo);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
         
-            
         ResponseEntity<byte[]> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, request, byte[].class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -96,7 +97,6 @@ public class CoverSongController {
         }
         return "success";
     }
-
 
     @GetMapping("/songList")
     public List<Map<String, String>> songList() {
@@ -144,7 +144,6 @@ public class CoverSongController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedFileName + "\"")
                 .body(resource);
     }
-
 
     private Map<String, String> extractSongInfo(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');

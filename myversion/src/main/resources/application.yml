@@ -12,8 +12,7 @@ spring:
       max-request-size: 100MB
       enabled: true
   datasource:
-    # url: jdbc:h2:/home/ec2-user/myversiondb
-    url: jdbc:h2:tcp://localhost/~/myversiondb
+    url: jdbc:h2:/home/ec2-user/myversiondb
     driver-class-name: org.h2.Driver
     username: mv
     password: mv
@@ -33,8 +32,6 @@ cloud:
   aws:
     region:
       static: ap-northeast-2
-    s3:
-      bucket: my-version-user-record-list
     credentials:
       access-key: ${AWS_ACCESS_KEY_ID}
       secret-key: ${AWS_SECRET_ACCESS_KEY}

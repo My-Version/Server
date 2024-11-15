@@ -1,8 +1,5 @@
 package com.myversion.myversion.controller;
 
-
-import com.myversion.myversion.domain.Compare;
-import com.myversion.myversion.service.CoverSongService;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.myversion.myversion.domain.Compare;
 import com.myversion.myversion.service.CompareService;
+import com.myversion.myversion.service.CoverSongService;
 import com.myversion.myversion.service.S3UploadService;
 
 import software.amazon.awssdk.services.s3.S3Client;
@@ -31,8 +30,7 @@ public class CompareController {
     private final CoverSongService coverSongService;
 
     @Autowired
-    public CompareController(S3Client s3Client, S3UploadService s3UploadService, CompareService compareService,
-                             CoverSongService coverSongService) {
+    public CompareController(S3Client s3Client, S3UploadService s3UploadService, CompareService compareService, CoverSongService coverSongService) {
         this.s3Client = s3Client;
         this.s3UploadService = s3UploadService;
         this.compareService = compareService;

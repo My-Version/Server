@@ -1,17 +1,13 @@
 package com.myversion.myversion;
 
-import com.myversion.myversion.repository.MemberRepository;
-import com.myversion.myversion.repository.MemberSpringDataJpaRepository;
-import com.myversion.myversion.service.MemberService;
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.myversion.myversion.repository.MemberRepository;
+import com.myversion.myversion.service.MemberService;
+
 import io.github.cdimascio.dotenv.Dotenv;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
