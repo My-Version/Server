@@ -27,10 +27,10 @@ public class MemberController {
 
     @PostMapping("/register")
     public Member Register(@RequestBody MemberRequestDTO memberRequestDTO) {
-        String id = memberRequestDTO.getId();
-        String pw = memberRequestDTO.getPassword();
+        String userId = memberRequestDTO.getUserId();
+        String password = memberRequestDTO.getPassword();
         
-        Member member = new Member(id, pw);
+        Member member = new Member(userId, password);
 
         return memberService.saveMember(member);
 
